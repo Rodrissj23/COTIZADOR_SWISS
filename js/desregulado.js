@@ -1,12 +1,14 @@
 // Lógica de Desregulado con aporte informado desde el recibo de sueldo.
 // Regla validada contra la planilla Swiss Medical:
-// base = aporteRecibo * 100 / 3
-// aporteComputable = base * 0.09 * 0.85
-// precioFinal = precioConBonificaciones - aporteComputable
+// baseCalculada = aporteRecibo * 100 / 3
+// baseAporte = min(baseCalculada, TOPE_BASE_APORTE)
+// aporteComputable = baseAporte * 0.09 * 0.85
+// precioFinal = max(0, precioConBonificaciones - aporteComputable)
 
 (() => {
   const REL_DEP = 'Relación de dependencia';
   const DESREGULADO_LABEL = 'Desregulado';
+  const TOPE_BASE_APORTE = 4045590;
 
   const modalityInput = document.querySelector(`input[name="modality"][value="${REL_DEP}"]`);
   if (!modalityInput) return;
@@ -66,7 +68,8 @@
     if (quote.status !== 'ok' || state.client.modality !== REL_DEP) return quote;
 
     const receiptContribution = Math.max(0, Number(state.client.receiptContribution) || 0);
-    const baseAporte = receiptContribution * 100 / 3;
+    const baseCalculada = receiptContribution * 100 / 3;
+    const baseAporte = Math.min(baseCalculada, TOPE_BASE_APORTE);
     const aporteComputable = baseAporte * 0.09 * 0.85;
     const finalBeforeAportes = quote.finalPrice;
     const finalPrice = Math.max(0, finalBeforeAportes - aporteComputable);
@@ -74,7 +77,9 @@
     return {
       ...quote,
       receiptContribution,
+      baseCalculada,
       baseAporte,
+      topeBaseAporte: TOPE_BASE_APORTE,
       aporteComputable,
       finalBeforeAportes,
       finalPrice
@@ -95,7 +100,11 @@
   memberBreakdown = function(quote){
     const breakdown = originalMemberBreakdown(quote);
     if (quote.status !== 'ok' || !quote.aporteComputable) return breakdown;
-    return `${breakdown}<div class="coverage-row"><span><b>Aporte por recibo de sueldo</b><br><small>Aporte informado ${money(quote.receiptContribution)} · base calculada ${money(quote.baseAporte)}</small></span><span>− ${money(quote.aporteComputable)}</span></div>`;
+    const capped = quote.baseCalculada > quote.baseAporte;
+    const baseText = capped
+      ? `base calculada ${money(quote.baseCalculada)} · tope aplicado ${money(quote.baseAporte)}`
+      : `base calculada ${money(quote.baseAporte)}`;
+    return `${breakdown}<div class="coverage-row"><span><b>Aporte por recibo de sueldo</b><br><small>Aporte informado ${money(quote.receiptContribution)} · ${baseText}</small></span><span>− ${money(quote.aporteComputable)}</span></div>`;
   };
 
   syncCase();
