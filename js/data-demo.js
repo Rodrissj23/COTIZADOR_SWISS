@@ -71,14 +71,23 @@ window.getSwissListPrice = (planName, age, adults=1, children=0, modality='Direc
   return adultPrice * adults + childPrice;
 };
 
-window.getSwissQuote = (planName, age, adults=1, children=0, modality='Directo') => {
+window.getSwissDiscount = (age, modality='Directo', zone='AMBA') => {
+  const discounts = [];
+  if (age < 25) discounts.push(50);
+  if (['Nordelta','Tigre'].includes(zone) && age >= 25) discounts.push(25);
+  if (modality === 'Monotributo') discounts.push(25);
+  if (modality === 'Directo') discounts.push(15);
+  return Math.max(0, ...discounts);
+};
+
+window.getSwissQuote = (planName, age, adults=1, children=0, modality='Directo', zone='AMBA') => {
   const listPrice = window.getSwissListPrice(planName, age, adults, children, modality);
   if (listPrice == null) return null;
-  const discountPercent = ['Directo','Monotributo'].includes(modality) ? 15 : 0;
+  const discountPercent = window.getSwissDiscount(age, modality, zone);
   const discount = listPrice * discountPercent / 100;
   return {listPrice, discountPercent, discount, finalPrice:listPrice - discount};
 };
 
-window.getSwissPrice = (planName, age, adults=1, children=0, modality='Directo') =>
-  window.getSwissQuote(planName, age, adults, children, modality)?.finalPrice ?? null;
+window.getSwissPrice = (planName, age, adults=1, children=0, modality='Directo', zone='AMBA') =>
+  window.getSwissQuote(planName, age, adults, children, modality, zone)?.finalPrice ?? null;
 
