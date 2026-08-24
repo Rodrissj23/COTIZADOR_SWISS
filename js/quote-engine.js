@@ -27,9 +27,11 @@
 
   function adultListPrice(tariff, planName, age){
     const numericAge = Number(age);
-    if (!Number.isFinite(numericAge)) return null;
+    if (!Number.isFinite(numericAge) || numericAge < 0) return null;
     if (tariff === window.SWISS_AMBULATORY_TARIFF && numericAge < 20) return null;
-    const key = tariff?.bands?.find(b => numericAge <= b.max)?.key;
+    // La última fila de las tablas es abierta: "Desde 61" o "Mayor de 80".
+    // Si la edad supera el máximo técnico usado en los datos, se conserva esa última banda.
+    const key = tariff?.bands?.find(b => numericAge <= b.max)?.key ?? tariff?.bands?.at(-1)?.key;
     return key ? tariff?.adult?.[planName]?.[key] ?? null : null;
   }
 
