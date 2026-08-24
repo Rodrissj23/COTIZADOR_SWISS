@@ -20,10 +20,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run logic audit
+      - name: Run logic and auth audit
         run: |
           node tests/qa.mjs
           node tests/age-open-ended.mjs
+          node tests/auth-qa.mjs
       - name: Install browser QA dependencies
         run: |
           npm install --no-save playwright@1.55.0 jspdf@2.5.2
