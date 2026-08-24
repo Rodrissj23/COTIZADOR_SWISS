@@ -27,10 +27,10 @@ window.SWISS_TARIFF = {
 };
 
 window.getSwissPrice = (planName, age, adults=1, children=0) => {
-  const key = SWISS_TARIFF.bands.find(b => age <= b.max)?.key;
-  const adultPrice = SWISS_TARIFF.adult[planName]?.[key];
+  const key = window.SWISS_TARIFF.bands.find(b => age <= b.max)?.key;
+  const adultPrice = window.SWISS_TARIFF.adult[planName]?.[key];
   if (!adultPrice) return null;
-  const childPrice = children ? SWISS_TARIFF.firstChild[planName] + Math.max(0, children - 1) * SWISS_TARIFF.additionalChild[planName] : 0;
+  const childPrice = children ? window.SWISS_TARIFF.firstChild[planName] + Math.max(0, children - 1) * window.SWISS_TARIFF.additionalChild[planName] : 0;
   return adultPrice * adults + childPrice;
 };
 
