@@ -46,23 +46,23 @@
           <div class="section-heading section-heading--small"><span>03</span><div><h3>Composición</h3><p>Indicá quiénes integran la propuesta.</p></div></div>
           <div class="field-grid field-grid--3">
             <label>Adultos<select id="adults"><option>1</option><option>2</option></select></label>
-            <label>Edad titular<input id="age" type="number" min="18" max="99" value="35"></label>
+            <label>Edad titular<input id="age" type="number" min="20" max="99" value="35"></label>
             <label>Menores<select id="children"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
           </div>
-          <div class="notice"><span>i</span><p><b>Motor tarifario pendiente</b> — mañana vinculamos precios, aportes y condiciones de campaña con la tabla oficial.</p></div>
+          <div class="notice"><span>i</span><p><b>Tarifario cargado · agosto 2026.</b> El valor se calcula por tramo de edad y composición. Para AMBU1, AMBU2 e INTER1 con dos o más menores, se solicita confirmación comercial porque la tabla sólo informa el valor de un hijo.</p></div>
           <button class="button button--red button--wide" type="submit"><span>Ver planes disponibles</span><span>→</span></button>
         </form>
       </div>
       <aside class="case-card">
         <p class="eyebrow eyebrow--white">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3>
         <div class="case-person"><span id="caseInitials">SM</span><div><b id="caseComposition">1 adulto · 35 años</b><small id="caseMode">Directo · AMBA</small></div></div>
-        <dl><div><dt>Planes cargados</dt><dd>15</dd></div><div><dt>Tarifario</dt><dd>Pendiente</dd></div><div><dt>Campañas</dt><dd>Preparadas</dd></div></dl>
-        <p class="case-foot">Los importes se habilitarán únicamente con la información comercial oficial.</p>
+        <dl><div><dt>Planes cargados</dt><dd>15</dd></div><div><dt>Tarifario</dt><dd>08/2026</dd></div><div><dt>Campañas</dt><dd>Preparadas</dd></div></dl>
+        <p class="case-foot">Importes cargados desde las tablas comerciales compartidas. Sujetos a validación antes de emitir.</p>
       </aside>
     </section>
 
     <section class="plans-section" id="resultados" hidden>
-      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Elegí el plan para tu cliente.</h2><p>Explorá la oferta por familia. Los valores se incorporarán con el tarifario.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
+      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Elegí el plan para tu cliente.</h2><p>Explorá la oferta por familia y compará el valor mensual de cada alternativa.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
       <div class="filters" id="planFilters"></div>
       <div class="plans-grid" id="plansGrid"></div>
     </section>
