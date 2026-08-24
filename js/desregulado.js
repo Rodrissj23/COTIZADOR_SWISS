@@ -6,16 +6,17 @@
 
 (() => {
   const REL_DEP = 'Relación de dependencia';
+  const DESREGULADO_LABEL = 'Desregulado';
 
   const modalityInput = document.querySelector(`input[name="modality"][value="${REL_DEP}"]`);
   if (!modalityInput) return;
 
-  // Cambiamos solo la etiqueta visible. El valor interno se conserva porque
-  // data-demo.js lo usa para seleccionar el tarifario obligatorio/desregulado.
+  // El valor interno se conserva porque data-demo.js lo usa para seleccionar
+  // el tarifario obligatorio/desregulado. Solo cambia la etiqueta visible.
   const choice = modalityInput.closest('.choice');
   const title = choice?.querySelector('b');
   const subtitle = choice?.querySelector('small');
-  if (title) title.textContent = 'Desregulado';
+  if (title) title.textContent = DESREGULADO_LABEL;
   if (subtitle) subtitle.textContent = 'Con aporte de recibo';
 
   const modalityChoices = document.querySelector('#modalityChoices');
@@ -29,7 +30,6 @@
 
   const receiptRow = document.querySelector('#receiptContributionRow');
   const receiptInput = document.querySelector('#receiptContribution');
-  const quoteForm = document.querySelector('#quoteForm');
 
   const isDesregulado = () => document.querySelector('input[name="modality"]:checked')?.value === REL_DEP;
 
@@ -39,9 +39,24 @@
     if (receiptInput) receiptInput.required = enabled;
 
     if (typeof state !== 'undefined' && state.client) {
-      state.client.receiptContribution = enabled ? (Number(receiptInput?.value) || 0) : 0;
+      state.client.receiptContribution = enabled ? Math.max(0, Number(receiptInput?.value) || 0) : 0;
+    }
+
+    // Evita que el resumen lateral muestre el nombre técnico interno.
+    const caseMode = document.querySelector('#caseMode');
+    if (caseMode && enabled) {
+      const suffix = state.client.specialDiscount === 'nordelta_tigre' ? ' · Beneficio Nordelta/Tigre' : '';
+      caseMode.textContent = `${DESREGULADO_LABEL} · ${state.client.zone}${suffix}`;
     }
   }
+
+  // app.js reconstruye state.client dentro de syncCase(). Lo envolvemos para
+  // restaurar inmediatamente el aporte y evitar que se pierda al enviar el formulario.
+  const originalSyncCase = syncCase;
+  syncCase = function(){
+    originalSyncCase();
+    syncReceiptContribution();
+  };
 
   // Desregulado NO agrega ninguna bonificación por sí mismo.
   // Los descuentos siguen exclusivamente la lógica general del cotizador.
@@ -83,11 +98,5 @@
     return `${breakdown}<div class="coverage-row"><span><b>Aporte por recibo de sueldo</b><br><small>Aporte informado ${money(quote.receiptContribution)} · base calculada ${money(quote.baseAporte)}</small></span><span>− ${money(quote.aporteComputable)}</span></div>`;
   };
 
-  // Los listeners originales de app.js corren primero; este listener completa
-  // el estado con el aporte después de cada sincronización del formulario.
-  ['input','change'].forEach(eventName => {
-    quoteForm?.addEventListener(eventName, syncReceiptContribution);
-  });
-
-  syncReceiptContribution();
+  syncCase();
 })();
