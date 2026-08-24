@@ -4,17 +4,17 @@
 
 - 15 planes comerciales.
 - Tablas por AMBA, Buenos Aires Interior/Santa Fe, Córdoba, Patagonia/Salta, Resto del país y Tierra del Fuego.
-- Tablas Directo/Monotributo y Obligatorio/Desregulado.
+- Tablas Directo/Monotributo y Obligatorio/Desregulado según disponibilidad informada.
 - Planes parciales AMBU1, AMBU2 e INTER1.
 - Composición individual, pareja, hijos y pareja+hijos.
 - Bonificaciones no acumulativas.
 - Desregulado con aporte, tope y piso $0.
 - Resumen técnico por plan.
-- PDF comercial de 5 páginas.
+- PDF comercial con paginación dinámica para grupos grandes.
 
 ## Correcciones de tarifario detectadas
 
-Las capturas oficiales compartidas se tomaron como fuente de verdad. Se corrigieron diferencias puntuales de transcripción mediante `js/tariff-audit-2026-09.js`, entre ellas valores de SMG40/SMG70 en AMBA Directo y S1 en AMBA Obligatorio.
+Las capturas oficiales compartidas se tomaron como fuente de verdad. Se corrigieron diferencias puntuales de transcripción mediante `js/tariff-audit-2026-09.js`, entre ellas valores de SMG40/SMG70 en AMBA Directo, S1 en AMBA Obligatorio y la tarifa de Hijo Adicional de S1 Obligatorio AMBA.
 
 Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunque determinados importes coincidan con otras regiones.
 
@@ -40,6 +40,8 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 18. PDF: vigencia 72 horas y tarifario Septiembre 2026.
 19. PDF: muestra aporte computable, no expone base calculada ni tope interno.
 20. Todos los planes se presentan visualmente con el mismo nivel de destaque.
+21. Grupos grandes: el detalle económico se reparte en páginas adicionales para no cortar integrantes.
+22. Planes parciales: no se ofrecen a titulares o parejas menores de 20 años porque ese rango no aparece en la tabla.
 
 ## Desregulado
 
@@ -54,13 +56,12 @@ precioFinal = máximo(0, precioConBonificaciones - aporteComputable)
 
 Los resúmenes de `js/benefits.js` se basan en los PDFs oficiales compartidos. S1 y S2 usan la última versión disponible 07/2026; los restantes planes usan 08/2026.
 
-## Pendiente de QA visual final
+## QA automatizado
 
-Queda para una pasada posterior sobre el sitio desplegado:
+`tests/qa.mjs` valida sintaxis, estructura de tarifarios, checkpoints contra las capturas, reglas de descuentos, composición familiar, rangos etarios, Desregulado, tope de aportes, piso $0, disponibilidad regional, beneficios, PDF directo y protección del JavaScript de tarifas.
 
-- desktop en navegador real;
-- mobile;
-- descarga efectiva del PDF desde producción;
-- revisión visual de saltos, textos largos y cantidad alta de integrantes.
+El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request.
 
-Esta etapa no modifica reglas comerciales: es QA de presentación y comportamiento del despliegue.
+## QA visual final
+
+La lógica y las pruebas automatizadas no reemplazan una revisión del sitio desplegado en navegador real. Para el cierre visual se revisan desktop, mobile, login/logout, modal, descarga efectiva del PDF y textos largos.

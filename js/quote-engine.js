@@ -3,7 +3,8 @@
   const CONTRIBUTION_BASE_CAP = 4045590;
   const PARTIAL_PLANS = new Set(['AMBU1','AMBU2','INTER1']);
 
-  const roundMoney = value => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+  // Margen mínimo para evitar errores binarios en redondeos monetarios de medio centavo.
+  const roundMoney = value => Math.round((Number(value) + 1e-9) * 100) / 100;
   const hasPartner = familyType => ['partner','partner_children'].includes(familyType);
   const hasChildren = familyType => ['children','partner_children'].includes(familyType);
   const isPartialPlan = name => PARTIAL_PLANS.has(name);
@@ -40,7 +41,8 @@
     const baseCalculated = Math.round(receiptContribution * 100 / 3);
     const baseContribution = Math.min(baseCalculated, CONTRIBUTION_BASE_CAP);
     const capApplied = baseCalculated > CONTRIBUTION_BASE_CAP;
-    const aporteComputable = roundMoney(baseContribution * 0.09 * 0.85);
+    // 9% × 0,85 = 7,65%. Se calcula como entero racional para redondear centavos de forma estable.
+    const aporteComputable = Math.round(baseContribution * 765 / 100) / 100;
     return {receiptContribution,baseCalculated,baseContribution,capApplied,aporteComputable};
   }
 
