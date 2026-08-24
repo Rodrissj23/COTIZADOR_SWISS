@@ -40,8 +40,28 @@ window.SWISS_AMBULATORY_TARIFF = {
   firstChild:{AMBU1:67818.3,AMBU2:39079,INTER1:61235.4}
 };
 
-window.getSwissPrice = (planName, age, adults=1, children=0) => {
-  const tariff = window.SWISS_AMBULATORY_TARIFF.adult[planName] ? window.SWISS_AMBULATORY_TARIFF : window.SWISS_TARIFF;
+/* Directo y Monotributo: tabla individual AMBA. El descuento se calcula aparte,
+   nunca se descuenta dos veces sobre el valor de lista. */
+window.SWISS_DIRECT_TARIFF = {
+  bands:window.SWISS_TARIFF.bands,
+  adult:{
+    S2:{u35:242411,'36_40':290883,'41_45':305408,'46_50':335979,'51_55':436770,'56_60':567790,o61:715108},
+    'SPORT S':{u35:301179,'36_40':361404,'41_45':379450,'46_50':417431,'51_55':542658,'56_60':705443,o61:888478},
+    SMG20:{u35:338947,'36_40':406726,'41_45':427034,'46_50':469781,'51_55':610707,'56_60':793909,o61:999897},
+    SMG30:{u35:389369,'36_40':467243,'41_45':490618,'46_50':539683,'51_55':701569,'56_60':912047,o61:1148633},
+    SPORT:{u35:396569,'36_40':475868,'41_45':499632,'46_50':549642,'51_55':714528,'56_60':928871,o61:1169877},
+    SMG40:{u35:406963,'36_40':488379,'41_45':512762,'46_50':564046,'51_55':733273,'56_60':953235,o61:1200335},
+    'SPORT+':{u35:463936,'36_40':556751,'41_45':584547,'46_50':643036,'51_55':835933,'56_60':1086712,o61:1368612},
+    SMG50:{u35:508509,'36_40':610176,'41_45':640699,'46_50':704755,'51_55':916180,'56_60':1191069,o61:1500103},
+    SMG60:{u35:716033,'36_40':859263,'41_45':902247,'46_50':992458,'51_55':1290198,'56_60':1677263,o61:2112303},
+    SMG70:{u35:871368,'36_40':1045652,'41_45':1097964,'46_50':1207716,'51_55':1570047,'56_60':2041065,o61:2570535}
+  },
+  firstChild:{S2:204913,'SPORT S':254593,SMG20:286519,SMG30:333337,SPORT:335228,SMG40:348335,'SPORT+':397101,SMG50:378267,SMG60:408260,SMG70:438193},
+  additionalChild:{S2:147067,'SPORT S':182722,SMG20:205638,SMG30:238991,SPORT:240594,SMG40:249501,'SPORT+':284433,SMG50:270460,SMG60:291419,SMG70:312380}
+};
+
+window.getSwissListPrice = (planName, age, adults=1, children=0, modality='Directo') => {
+  const tariff = window.SWISS_AMBULATORY_TARIFF.adult[planName] ? window.SWISS_AMBULATORY_TARIFF : (['Directo','Monotributo'].includes(modality) ? window.SWISS_DIRECT_TARIFF : window.SWISS_TARIFF);
   const key = tariff.bands.find(b => age <= b.max)?.key;
   const adultPrice = tariff.adult[planName]?.[key];
   if (!adultPrice) return null;
@@ -50,4 +70,15 @@ window.getSwissPrice = (planName, age, adults=1, children=0) => {
   const childPrice = children ? tariff.firstChild[planName] + Math.max(0, children - 1) * additionalPrice : 0;
   return adultPrice * adults + childPrice;
 };
+
+window.getSwissQuote = (planName, age, adults=1, children=0, modality='Directo') => {
+  const listPrice = window.getSwissListPrice(planName, age, adults, children, modality);
+  if (listPrice == null) return null;
+  const discountPercent = ['Directo','Monotributo'].includes(modality) ? 15 : 0;
+  const discount = listPrice * discountPercent / 100;
+  return {listPrice, discountPercent, discount, finalPrice:listPrice - discount};
+};
+
+window.getSwissPrice = (planName, age, adults=1, children=0, modality='Directo') =>
+  window.getSwissQuote(planName, age, adults, children, modality)?.finalPrice ?? null;
 
