@@ -1,34 +1,79 @@
 # Cotizador Swiss Medical · Grupo Zeroka
 
-Portal comercial para cotizar planes Swiss Medical por zona, modalidad, edad y composición familiar, con detalle de precio de lista, bonificaciones por integrante y valor mensual final.
+Portal comercial para cotizar planes Swiss Medical por zona, modalidad, edad y composición familiar, con detalle por integrante, bonificaciones, aportes cuando corresponde y descarga directa de propuesta PDF.
 
-## Estado
+## Vigencia comercial
 
-- Diseño desktop y mobile implementado.
-- Tarifarios cargados por zona y modalidad según las tablas comerciales compartidas.
-- Cálculo individual por integrante: titular, pareja e hijos.
-- Bonificaciones aplicadas por persona y sin acumulación: se toma únicamente la mayor que corresponda.
-- Nordelta / Tigre configurado como beneficio opcional del 25%, no como localidad.
-- Los planes no disponibles para una zona/modalidad se ocultan.
-- AMBU1, AMBU2 e INTER1 usan su tabla parcial propia; con más de un hijo se solicita confirmación comercial.
-- PDF con valor de lista, bonificaciones y valor final.
-- Pendiente: incorporar la tabla de aportes para completar la lógica de Relación de dependencia / Monotributo cuando corresponda.
-- Beneficios médicos por plan pendientes de la revisión final de las cartillas.
+- Tarifario utilizado: **Septiembre 2026**.
+- La propuesta emitida tiene una vigencia de **72 horas**.
+- Beneficios médicos: se resumen a partir de la última documentación disponible compartida por plan. S1 y S2 utilizan como última fuente disponible la versión 07/2026; el resto utiliza 08/2026.
 
-## Reglas comerciales consolidadas
+## Planes
 
-- Directo y Monotributo comparten tabla base donde el tarifario indica `DIRECTO | MONOTRIBUTO`.
-- Relación de dependencia usa la tabla `OBLIGATORIO`.
+AMBU1, AMBU2, INTER1, S1, S2, SMG02, SPORT S, SPORT, SPORT+, SMG20, SMG30, SMG40, SMG50, SMG60 y SMG70.
+
+Los planes que no tienen precio informado para la zona, modalidad o edad seleccionada se ocultan.
+
+## Reglas comerciales
+
 - Directo: 15%.
-- Monotributo: 25%.
-- Menor de 25 años: 50%.
-- Beneficio Nordelta / Tigre: 25% opcional.
-- Si una persona reúne más de una bonificación, se aplica sólo la mayor.
-- La bonificación se calcula integrante por integrante y luego se suman los resultados.
-- Los hijos se consideran hasta 21 años.
-- Primer hijo usa `1er Hijo`; desde el segundo se usa `Hijo Adicional`.
-- Tierra del Fuego Monotributo usa la misma base que Directo y aplica el 25% de Monotributo.
+- Monotributo: 25%. No descuenta un aporte monetario adicional.
+- Hasta 25 años inclusive: 50%.
+- Beneficio Nordelta / Tigre: 25%, disponible únicamente dentro de AMBA.
+- Las bonificaciones **no se acumulan**: por integrante se toma solamente la mayor.
+- Titular y pareja se calculan por separado según su rango etario.
+- Se solicita la edad individual de cada hijo.
+- Hijos de 0 a 21 años: el primero puede usar tarifa `1er Hijo`; los siguientes usan `Hijo Adicional`.
+- Hijos de 22 a 25 años: usan tarifa `Hijo Adicional`.
+- AMBU1, AMBU2 e INTER1 siguen exclusivamente los rangos informados en su tabla parcial.
+- En planes parciales, si se requiere una tarifa de hijo adicional que la tabla no informa, se solicita validación comercial.
+- DNI es opcional.
 
-## Vista local
+## Desregulado
 
-Abrir `login.html`. En modo archivo el acceso conduce al portal sin validar credenciales. En producción, Netlify utiliza `AUTH_USER`, `AUTH_PASSWORD` y `SESSION_SECRET`.
+Desregulado usa la tabla `OBLIGATORIO` y no genera una bonificación automática por modalidad.
+
+El vendedor informa un único aporte del recibo del titular. La lógica es:
+
+```text
+baseCalculada = redondear(aporteRecibo × 100 ÷ 3)
+baseAporte = mínimo(baseCalculada, 4.045.590)
+aporteComputable = baseAporte × 9% × 0,85
+precioFinal = máximo(0, precioConBonificaciones - aporteComputable)
+```
+
+El tope se maneja internamente y no se expone en la propuesta del cliente. El PDF muestra únicamente el aporte computable que se descuenta.
+
+## Zonas
+
+- AMBA
+- Buenos Aires Interior / Santa Fe
+- Córdoba
+- Patagonia / Salta
+- Resto del país
+- Tierra del Fuego
+
+Cada región se trata como tabla comercial independiente aunque algunos importes coincidan.
+
+## PDF
+
+La propuesta se descarga directamente con el nombre:
+
+`Cotizacion Swiss Medical (Nombre del cliente).pdf`
+
+Incluye cinco bloques visuales: portada, contexto de cobertura, detalle económico por integrante, resumen técnico del plan y cierre.
+
+## Archivos de mantenimiento
+
+- `js/data-demo.js`: base del tarifario por zona y modalidad.
+- `js/tariff-audit-2026-09.js`: correcciones auditadas contra las capturas oficiales de Septiembre 2026.
+- `js/benefits.js`: resumen comercial de beneficios por plan basado en los PDFs oficiales compartidos.
+- `js/app.js`: reglas de cálculo, formulario, composición familiar, Desregulado y PDF.
+
+Para un cambio mensual de precios, priorizar actualizar el tarifario y dejar intacta la lógica de `app.js` salvo que cambie una regla comercial.
+
+## Acceso
+
+En producción, Netlify utiliza `AUTH_USER`, `AUTH_PASSWORD` y `SESSION_SECRET`. La sesión dura 8 horas.
+
+> Nota de seguridad: si los precios deben ser confidenciales, el repositorio también debe mantenerse privado. El login protege el uso del portal, pero un repositorio público permite inspeccionar el código fuente del tarifario.
