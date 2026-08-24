@@ -20,5 +20,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Run Swiss audit tests
+      - name: Run logic audit
         run: node tests/qa.mjs
+      - name: Install browser QA dependencies
+        run: |
+          npm install --no-save playwright@1.55.0 jspdf@2.5.2
+          npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/swiss-http.log 2>&1 &
+          for i in {1..20}; do curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0; sleep 1; done
+          cat /tmp/swiss-http.log
+          exit 1
+      - name: Run browser and PDF audit
+        run: node tests/browser-qa.mjs
