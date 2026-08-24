@@ -43,15 +43,8 @@
     }
   }
 
-  // La bonificación comercial para Desregulado es 15%, salvo que exista
-  // una bonificación mayor (por edad o beneficio territorial).
-  const originalDiscountForMember = discountForMember;
-  discountForMember = function(age, role, modality, specialDiscount){
-    const best = originalDiscountForMember(age, role, modality, specialDiscount);
-    if (modality !== REL_DEP || best.percent >= 15) return best;
-    return {percent:15, label:'Desregulado'};
-  };
-
+  // Desregulado NO agrega ninguna bonificación por sí mismo.
+  // Los descuentos siguen exclusivamente la lógica general del cotizador.
   const originalFamilyQuote = familyQuote;
   familyQuote = function(plan){
     const quote = originalFamilyQuote(plan);
