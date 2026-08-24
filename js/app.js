@@ -34,7 +34,7 @@ function getTariffFor(planName, modality, zone){
 
 function discountForMember(age, role, modality, specialDiscount){
   const candidates = [];
-  if (age < 25) candidates.push({percent:50,label:'Menor de 25'});
+  if (age <= 25) candidates.push({percent:50,label:'Hasta 25 años'});
   if (specialDiscount === 'nordelta_tigre' && age >= 25) candidates.push({percent:25,label:'Beneficio Nordelta/Tigre'});
   if (modality === 'Monotributo') candidates.push({percent:25,label:'Monotributo'});
   if (modality === 'Directo') candidates.push({percent:15,label:'Directo'});
@@ -43,6 +43,8 @@ function discountForMember(age, role, modality, specialDiscount){
 }
 
 function adultListPrice(tariff, planName, age){
+  // AMBU1, AMBU2 e INTER1 comienzan comercialmente desde los 20 años.
+  if (tariff === window.SWISS_AMBULATORY_TARIFF && age < 20) return null;
   const key = tariff?.bands.find(b => age <= b.max)?.key;
   return key ? tariff?.adult?.[planName]?.[key] ?? null : null;
 }
@@ -71,7 +73,7 @@ function familyQuote(plan){
     for (let i=0;i<c.children;i++){
       const listPrice = i===0 ? tariff.firstChild[plan.name] : tariff.additionalChild?.[plan.name];
       if (listPrice == null) return {status:'consult',reason:'La tabla no informa tarifa para hijo adicional.'};
-      // Los hijos admitidos son hasta 21 años; por lo tanto siempre quedan dentro del beneficio <25.
+      // Los hijos admitidos son hasta 21 años y reciben la bonificación del 50% por edad.
       const childDiscount = discountForMember(21,'Hijo',c.modality,c.specialDiscount);
       members.push({role:i===0?'1er hijo':`Hijo adicional ${i}`,age:null,listPrice,...childDiscount});
     }
