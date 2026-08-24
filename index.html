@@ -16,11 +16,11 @@
   <main>
     <section class="hero" id="inicio">
       <div class="hero-copy">
-        <p class="eyebrow eyebrow--white">COTIZADOR COMERCIAL</p>
+        <p class="eyebrow eyebrow--white">COTIZADOR COMERCIAL · SEPTIEMBRE 2026</p>
         <h1>La cobertura indicada para cada momento.</h1>
         <p>Armá una propuesta Swiss Medical clara, personalizada y lista para compartir.</p>
         <button class="button button--white" data-scroll="#cotizador">Empezar cotización <span>↓</span></button>
-        <div class="hero-pills"><span>15 planes</span><span>Comparación simple</span><span>Cotización en PDF</span></div>
+        <div class="hero-pills"><span>15 planes</span><span>Comparación simple</span><span>PDF directo</span><span>Vigencia 72 hs</span></div>
       </div>
       <figure class="hero-image"><img src="assets/images/portal-family.jpg" alt="Familia en un hogar luminoso"><figcaption><strong>Todo en un solo lugar</strong><small>Para decidir con más claridad</small></figcaption></figure>
       <div class="hero-orbit" aria-hidden="true"></div>
@@ -28,62 +28,72 @@
 
     <section class="quote-layout" id="cotizador">
       <div class="form-card">
-        <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Contanos sobre tu cliente.</h2><p>Primero armamos el caso. Después mostramos los planes.</p></div></div>
+        <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Contanos sobre tu cliente.</h2><p>Primero armamos el caso. Después mostramos los planes disponibles.</p></div></div>
         <form id="quoteForm">
           <div class="field-grid field-grid--3">
             <label>Nombre y apellido<input id="clientName" required placeholder="Ej. María González"></label>
-            <label>DNI<input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
+            <label>DNI <small class="field-help">Opcional</small><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
             <label>Zona<select id="zone"><option>AMBA</option><option>Buenos Aires Interior / Santa Fe</option><option>Córdoba</option><option>Patagonia / Salta</option><option>Resto del país</option><option>Tierra del Fuego</option></select></label>
           </div>
           <hr>
           <div class="section-heading section-heading--small"><span>02</span><div><h3>Modalidad</h3><p>Elegí cómo ingresa la persona.</p></div></div>
           <div class="choice-row" id="modalityChoices">
             <label class="choice active"><input type="radio" name="modality" value="Directo" checked><b>Directo</b><small>Contratación particular</small></label>
-            <label class="choice"><input type="radio" name="modality" value="Monotributo"><b>Monotributo</b><small>Con aportes</small></label>
-            <label class="choice"><input type="radio" name="modality" value="Relación de dependencia"><b>Relación de dependencia</b><small>Con aportes</small></label>
+            <label class="choice"><input type="radio" name="modality" value="Monotributo"><b>Monotributo</b><small>Bonificación comercial</small></label>
+            <label class="choice"><input type="radio" name="modality" value="Relación de dependencia"><b>Desregulado</b><small>Con aporte de recibo</small></label>
+          </div>
+          <div class="field-grid field-grid--3 conditional-row" id="receiptContributionWrap" hidden>
+            <label>Aporte del recibo de sueldo<input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 20000"><small class="field-help">Se aplica el tope vigente de base de aportes.</small></label>
           </div>
           <hr>
-          <div class="section-heading section-heading--small"><span>03</span><div><h3>Composición familiar</h3><p>Cada adulto se calcula por su propio tramo de edad.</p></div></div>
+          <div class="section-heading section-heading--small"><span>03</span><div><h3>Composición familiar</h3><p>Cada integrante se calcula por separado.</p></div></div>
           <div class="field-grid field-grid--3">
             <label>Composición<select id="familyType"><option value="individual">Individual</option><option value="partner">Titular + pareja</option><option value="children">Titular + hijo(s)</option><option value="partner_children">Titular + pareja + hijo(s)</option></select></label>
-            <label>Edad titular<input id="age" type="number" min="18" max="99" value="35"></label>
+            <label>Edad titular<input id="age" type="number" min="18" max="99" value="35" required></label>
             <label id="partnerAgeWrap" hidden>Edad pareja<input id="partnerAge" type="number" min="18" max="99" value="35"></label>
           </div>
-          <div class="field-grid field-grid--3" style="margin-top:16px">
-            <label id="childrenWrap" hidden>Hijos hasta 21 años<select id="children"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
-            <label>Beneficio territorial<select id="specialDiscount"><option value="none">Sin beneficio adicional</option><option value="nordelta_tigre">Nordelta / Tigre · 25%</option></select></label>
+          <div class="field-grid field-grid--3 conditional-row">
+            <label id="childrenWrap" hidden>Cantidad de hijos<input id="children" type="number" min="1" step="1" value="1"></label>
+            <label id="specialDiscountWrap">Beneficio territorial<select id="specialDiscount"><option value="none">Sin beneficio adicional</option><option value="nordelta_tigre">Nordelta / Tigre · 25%</option></select></label>
           </div>
-          <div class="notice"><span>i</span><p><b>Tarifario vigente.</b> Cada integrante se calcula por separado y recibe únicamente la mayor bonificación que le corresponda. El beneficio por edad del 50% aplica hasta los 25 años inclusive. Los hijos se consideran hasta 21 años. AMBU1, AMBU2 e INTER1 comienzan desde los 20 años y con más de un hijo requieren consulta comercial.</p></div>
+          <div id="childrenAgesWrap" class="children-ages-wrap" hidden>
+            <p class="children-ages-title">Edad de cada hijo</p>
+            <div id="childrenAgeFields" class="children-ages"></div>
+            <small>Los hijos pueden incorporarse hasta los 25 años. De 22 a 25 años usan tarifa de hijo adicional.</small>
+          </div>
+          <div class="notice"><span>i</span><p><b>Tarifario Septiembre 2026.</b> Cada integrante recibe únicamente la mayor bonificación que le corresponda. Directo 15%, Monotributo 25%, hasta 25 años 50% y Nordelta/Tigre 25% únicamente para AMBA. Las bonificaciones no se acumulan. Los planes parciales se muestran solamente para edades informadas en su tabla.</p></div>
           <button class="button button--red button--wide" type="submit"><span>Ver planes disponibles</span><span>→</span></button>
         </form>
       </div>
       <aside class="case-card">
         <p class="eyebrow eyebrow--white">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3>
         <div class="case-person"><span id="caseInitials">SM</span><div><b id="caseComposition">Titular · 35 años</b><small id="caseMode">Directo · AMBA</small></div></div>
-        <dl><div><dt>Planes cargados</dt><dd>15</dd></div><div><dt>Tarifario</dt><dd>Vigente</dd></div><div><dt>Cálculo</dt><dd>Por integrante</dd></div></dl>
+        <dl><div><dt>Planes cargados</dt><dd>15</dd></div><div><dt>Tarifario</dt><dd>Sep. 2026</dd></div><div><dt>Vigencia</dt><dd>72 hs</dd></div><div><dt>Cálculo</dt><dd>Por integrante</dd></div></dl>
         <p class="case-foot">Los importes se calculan con la tabla correspondiente a zona, modalidad, edad y composición familiar.</p>
       </aside>
     </section>
 
     <section class="plans-section" id="resultados" hidden>
-      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Elegí el plan para tu cliente.</h2><p>Solo se muestran los planes disponibles para la zona y modalidad elegidas.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
+      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Elegí el plan para tu cliente.</h2><p>Solo se muestran los planes disponibles para la zona, modalidad y edades elegidas.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
       <div class="filters" id="planFilters"></div>
       <div class="plans-grid" id="plansGrid"></div>
     </section>
 
     <section class="selected-bar" id="selectedBar" hidden>
       <div><p>PLAN SELECCIONADO</p><h2 id="selectedName">SMG20</h2><small>Propuesta visual preparada</small></div>
-      <div class="selected-price"><p>VALOR MENSUAL FINAL</p><strong>Elegí un plan</strong><small>Incluye detalle de lista y bonificaciones</small></div>
+      <div class="selected-price"><p>VALOR MENSUAL FINAL</p><strong>Elegí un plan</strong><small>Incluye lista, bonificaciones y aportes cuando corresponde</small></div>
       <div class="selected-actions"><button class="button button--ghost" data-scroll="#resultados">Cambiar</button><button class="button button--white" id="openQuote">Ver cotización →</button></div>
     </section>
   </main>
 
   <dialog id="quoteDialog" class="quote-dialog">
-    <div class="dialog-toolbar"><div><b>Vista previa de cotización</b><small>Precio de lista, bonificaciones por integrante y valor final</small></div><div><button id="printQuote" class="button button--red">Descargar PDF</button><button id="closeQuote" class="icon-button" aria-label="Cerrar">×</button></div></div>
+    <div class="dialog-toolbar"><div><b>Vista previa de cotización</b><small>5 páginas · detalle económico y técnico</small></div><div><button id="printQuote" class="button button--red">Descargar PDF</button><button id="closeQuote" class="icon-button" aria-label="Cerrar">×</button></div></div>
     <div class="quote-pages" id="quotePages"></div>
   </dialog>
   <script src="js/data-demo.js"></script>
+  <script src="js/tariff-audit-2026-09.js"></script>
+  <script src="js/benefits.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="js/app.js"></script>
-  <script src="js/desregulado.js"></script>
 </body>
 </html>
