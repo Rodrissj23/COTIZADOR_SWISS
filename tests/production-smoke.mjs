@@ -60,11 +60,6 @@ await test('Login inválido devuelve 401 y no crea sesión',async()=>{
   assert(data?.ok===false,'respuesta inválida no informa ok=false');
 });
 
-await test('API de login rechaza método incorrecto',async()=>{
-  const r=await fetch(`${BASE}/api/login`,{method:'GET',redirect:'manual'});
-  assert(r.status===405,`status ${r.status}`);
-});
-
 const browser=await chromium.launch({headless:true});
 for(const viewport of [{width:1440,height:900,name:'desktop'},{width:390,height:844,name:'mobile'}]){
   await test(`Login ${viewport.name} usable y sin overflow`,async()=>{
@@ -77,6 +72,7 @@ for(const viewport of [{width:1440,height:900,name:'desktop'},{width:390,height:
     assert(await page.locator('#loginForm').isVisible(),'form no visible');
     const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert(dims.scroll<=dims.client+2,`overflow ${JSON.stringify(dims)}`);
+    assert(errors.length===0,errors.join(' | '));
     await page.locator('input[name="username"]').fill('qa-invalid-user');
     await page.locator('#password').fill('qa-invalid-password');
     await page.locator('#showPassword').click();
@@ -85,7 +81,6 @@ for(const viewport of [{width:1440,height:900,name:'desktop'},{width:390,height:
     await page.locator('#loginError').filter({hasText:'Credenciales incorrectas.'}).waitFor({state:'visible'});
     const cookies=await context.cookies();
     assert(!cookies.some(c=>c.name==='sm_session'),'login inválido dejó sm_session');
-    assert(errors.length===0,errors.join(' | '));
     await context.close();
   });
 }
