@@ -6,7 +6,7 @@ const money = value => {
   const cents = Math.abs(value % 1) > 0.00001;
   return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:cents?2:0,maximumFractionDigits:cents?2:0}).format(value);
 };
-const quoteFor = plan => window.getSwissQuote(plan.name,state.client.age,state.client.adults,state.client.children,state.client.modality);
+const quoteFor = plan => window.getSwissQuote(plan.name,state.client.age,state.client.adults,state.client.children,state.client.modality,state.client.zone);
 const priceFor = plan => quoteFor(plan)?.finalPrice ?? null;
 
 $$('[data-scroll]').forEach(button => button.addEventListener('click', () => $(button.dataset.scroll)?.scrollIntoView({behavior:'smooth'})));
