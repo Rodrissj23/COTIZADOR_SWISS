@@ -1,0 +1,17 @@
+const form = document.querySelector('#loginForm');
+document.querySelector('#showPassword')?.addEventListener('click', () => {
+  const input = document.querySelector('#password');
+  input.type = input.type === 'password' ? 'text' : 'password';
+});
+form?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const error = document.querySelector('#loginError'); error.textContent = '';
+  const data = Object.fromEntries(new FormData(form));
+  if (location.protocol === 'file:') { location.href = 'index.html'; return; }
+  try {
+    const response = await fetch('/api/login', {method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify(data)});
+    if (!response.ok) throw new Error('Credenciales incorrectas.');
+    location.href = '/';
+  } catch (e) { error.textContent = e.message || 'No pudimos iniciar sesión.'; }
+});
+
