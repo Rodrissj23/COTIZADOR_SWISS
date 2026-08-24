@@ -33,7 +33,7 @@
           <div class="field-grid field-grid--3">
             <label>Nombre y apellido<input id="clientName" required placeholder="Ej. María González"></label>
             <label>DNI<input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
-            <label>Zona<select id="zone"><option>AMBA</option><option>Nordelta</option><option>Tigre</option><option>Buenos Aires Interior / Santa Fe</option><option>Córdoba</option><option>Patagonia / Salta</option><option>Resto del país</option><option>Tierra del Fuego</option></select></label>
+            <label>Zona<select id="zone"><option>AMBA</option><option>Buenos Aires Interior / Santa Fe</option><option>Córdoba</option><option>Patagonia / Salta</option><option>Resto del país</option><option>Tierra del Fuego</option></select></label>
           </div>
           <hr>
           <div class="section-heading section-heading--small"><span>02</span><div><h3>Modalidad</h3><p>Elegí cómo ingresa la persona.</p></div></div>
@@ -43,39 +43,43 @@
             <label class="choice"><input type="radio" name="modality" value="Relación de dependencia"><b>Relación de dependencia</b><small>Con aportes</small></label>
           </div>
           <hr>
-          <div class="section-heading section-heading--small"><span>03</span><div><h3>Composición</h3><p>Indicá quiénes integran la propuesta.</p></div></div>
+          <div class="section-heading section-heading--small"><span>03</span><div><h3>Composición familiar</h3><p>Cada adulto se calcula por su propio tramo de edad.</p></div></div>
           <div class="field-grid field-grid--3">
-            <label>Adultos<select id="adults"><option>1</option><option>2</option></select></label>
+            <label>Composición<select id="familyType"><option value="individual">Individual</option><option value="partner">Titular + pareja</option><option value="children">Titular + hijo(s)</option><option value="partner_children">Titular + pareja + hijo(s)</option></select></label>
             <label>Edad titular<input id="age" type="number" min="20" max="99" value="35"></label>
-            <label>Menores<select id="children"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+            <label id="partnerAgeWrap" hidden>Edad pareja<input id="partnerAge" type="number" min="20" max="99" value="35"></label>
           </div>
-          <div class="notice"><span>i</span><p><b>Tarifario cargado · agosto 2026.</b> El valor se calcula por tramo de edad y composición. Para AMBU1, AMBU2 e INTER1 con dos o más menores, se solicita confirmación comercial porque la tabla sólo informa el valor de un hijo.</p></div>
+          <div class="field-grid field-grid--3" style="margin-top:16px">
+            <label id="childrenWrap" hidden>Hijos hasta 21 años<select id="children"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+            <label>Beneficio territorial<select id="specialDiscount"><option value="none">Sin beneficio adicional</option><option value="nordelta_tigre">Nordelta / Tigre · 25%</option></select></label>
+          </div>
+          <div class="notice"><span>i</span><p><b>Tarifario vigente.</b> Cada integrante se calcula por separado y recibe únicamente la mayor bonificación que le corresponda. Los hijos se consideran hasta 21 años. Para AMBU1, AMBU2 e INTER1 con más de un hijo, el sistema indica consulta comercial.</p></div>
           <button class="button button--red button--wide" type="submit"><span>Ver planes disponibles</span><span>→</span></button>
         </form>
       </div>
       <aside class="case-card">
         <p class="eyebrow eyebrow--white">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3>
-        <div class="case-person"><span id="caseInitials">SM</span><div><b id="caseComposition">1 adulto · 35 años</b><small id="caseMode">Directo · AMBA</small></div></div>
-        <dl><div><dt>Planes cargados</dt><dd>15</dd></div><div><dt>Tarifario</dt><dd>08/2026</dd></div><div><dt>Campañas</dt><dd>Preparadas</dd></div></dl>
-        <p class="case-foot">Importes cargados desde las tablas comerciales compartidas. Sujetos a validación antes de emitir.</p>
+        <div class="case-person"><span id="caseInitials">SM</span><div><b id="caseComposition">Titular · 35 años</b><small id="caseMode">Directo · AMBA</small></div></div>
+        <dl><div><dt>Planes cargados</dt><dd>15</dd></div><div><dt>Tarifario</dt><dd>Vigente</dd></div><div><dt>Cálculo</dt><dd>Por integrante</dd></div></dl>
+        <p class="case-foot">Los importes se calculan con la tabla correspondiente a zona, modalidad, edad y composición familiar.</p>
       </aside>
     </section>
 
     <section class="plans-section" id="resultados" hidden>
-      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Elegí el plan para tu cliente.</h2><p>Explorá la oferta por familia y compará el valor mensual de cada alternativa.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
+      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Elegí el plan para tu cliente.</h2><p>Solo se muestran los planes disponibles para la zona y modalidad elegidas.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
       <div class="filters" id="planFilters"></div>
       <div class="plans-grid" id="plansGrid"></div>
     </section>
 
     <section class="selected-bar" id="selectedBar" hidden>
       <div><p>PLAN SELECCIONADO</p><h2 id="selectedName">SMG20</h2><small>Propuesta visual preparada</small></div>
-      <div class="selected-price"><p>VALOR MENSUAL</p><strong>Elegí un plan</strong><small>Se actualiza según la composición</small></div>
+      <div class="selected-price"><p>VALOR MENSUAL FINAL</p><strong>Elegí un plan</strong><small>Incluye detalle de lista y bonificaciones</small></div>
       <div class="selected-actions"><button class="button button--ghost" data-scroll="#resultados">Cambiar</button><button class="button button--white" id="openQuote">Ver cotización →</button></div>
     </section>
   </main>
 
   <dialog id="quoteDialog" class="quote-dialog">
-    <div class="dialog-toolbar"><div><b>Vista previa de cotización</b><small>Importe calculado por tramo de edad y composición</small></div><div><button id="printQuote" class="button button--red">Descargar PDF</button><button id="closeQuote" class="icon-button" aria-label="Cerrar">×</button></div></div>
+    <div class="dialog-toolbar"><div><b>Vista previa de cotización</b><small>Precio de lista, bonificaciones por integrante y valor final</small></div><div><button id="printQuote" class="button button--red">Descargar PDF</button><button id="closeQuote" class="icon-button" aria-label="Cerrar">×</button></div></div>
     <div class="quote-pages" id="quotePages"></div>
   </dialog>
   <script src="js/data-demo.js"></script>
