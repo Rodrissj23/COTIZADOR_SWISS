@@ -2,7 +2,7 @@ const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const state = {client:{name:'Nueva cotización',dni:'',zone:'AMBA',modality:'Directo',adults:1,age:35,children:0}, family:'Todos', plan:null};
 const money = value => value == null ? 'Consultar' : new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(value);
-const priceFor = plan => getSwissPrice(plan.name,state.client.age,state.client.adults,state.client.children);
+const priceFor = plan => window.getSwissPrice(plan.name,state.client.age,state.client.adults,state.client.children);
 
 $$('[data-scroll]').forEach(button => button.addEventListener('click', () => $(button.dataset.scroll)?.scrollIntoView({behavior:'smooth'})));
 $$('.choice').forEach(choice => choice.addEventListener('click', () => { $$('.choice').forEach(c=>c.classList.remove('active')); choice.classList.add('active'); }));
@@ -18,16 +18,16 @@ function syncCase(){
 ['input','change'].forEach(event=>$('#quoteForm').addEventListener(event,syncCase));
 
 function renderFilters(){
-  const families=['Todos',...new Set(SWISS_PLANS.map(p=>p.family))];
+  const families=['Todos',...new Set(window.SWISS_PLANS.map(p=>p.family))];
   $('#planFilters').innerHTML=families.map(f=>`<button class="filter ${f===state.family?'active':''}" data-family="${f}">${f}</button>`).join('');
   $$('.filter').forEach(b=>b.addEventListener('click',()=>{state.family=b.dataset.family;renderFilters();renderPlans()}));
 }
 function renderPlans(){
-  const plans=SWISS_PLANS.filter(p=>state.family==='Todos'||p.family===state.family);
+  const plans=window.SWISS_PLANS.filter(p=>state.family==='Todos'||p.family===state.family);
   $('#plansGrid').innerHTML=plans.map((p,i)=>{const price=priceFor(p);return `<article class="plan-card ${p.name==='SMG30'?'featured':''}"><div class="plan-top"><h3>${p.name}</h3><span class="tag">${p.tag}</span></div><p class="plan-family">Familia ${p.family}</p><div class="plan-price"><small>Valor mensual</small><strong>${money(price)}</strong><small>${price==null?'Tarifa aún no incorporada':'Importe por composición seleccionada'}</small></div><button class="button ${p.name==='SMG30'?'button--white':'button--red'}" data-plan="${p.name}">${price==null?'Consultar':'Elegir plan'} <span>→</span></button></article>`}).join('');
   $$('[data-plan]').forEach(b=>b.addEventListener('click',()=>selectPlan(b.dataset.plan)));
 }
-function selectPlan(name){state.plan=SWISS_PLANS.find(p=>p.name===name);const price=priceFor(state.plan);$('#selectedName').textContent=name;$('.selected-price strong').textContent=money(price);$('.selected-price small').textContent=price==null?'Tarifa aún no incorporada':'Valor mensual por composición';$('#selectedBar').hidden=false;$('#selectedBar').scrollIntoView({behavior:'smooth',block:'end'});}
+function selectPlan(name){state.plan=window.SWISS_PLANS.find(p=>p.name===name);const price=priceFor(state.plan);$('#selectedName').textContent=name;$('.selected-price strong').textContent=money(price);$('.selected-price small').textContent=price==null?'Tarifa aún no incorporada':'Valor mensual por composición';$('#selectedBar').hidden=false;$('#selectedBar').scrollIntoView({behavior:'smooth',block:'end'});}
 
 $('#quoteForm').addEventListener('submit',e=>{e.preventDefault();syncCase();renderFilters();renderPlans();$('#resultados').hidden=false;$('#resultados').scrollIntoView({behavior:'smooth'});});
 $('#logoutButton').addEventListener('click',async()=>{try{await fetch('/api/logout',{method:'POST'})}finally{location.href='login.html'}});
@@ -35,7 +35,7 @@ $('#logoutButton').addEventListener('click',async()=>{try{await fetch('/api/logo
 function brand(white=false){return `<div class="brand ${white?'brand--white':''}"><span class="brand-mark"><i></i><i></i><i></i><i></i></span><span><strong>SWISS MEDICAL</strong><small>MEDICINA PRIVADA</small></span></div>`}
 function footer(page){return `<div class="quote-footer"><span>Propuesta comercial orientativa · Sujeta a condiciones de contratación</span><span>${page} / 4 · Grupo Zeroka</span></div>`}
 function buildQuote(){
-  const c=state.client,p=state.plan||SWISS_PLANS[9],price=priceFor(p);
+  const c=state.client,p=state.plan||window.SWISS_PLANS[9],price=priceFor(p);
   $('#quotePages').innerHTML=`
   <section class="quote-page quote-cover"><div class="quote-circle"></div><div class="quote-logo">${brand(true)}</div><div class="quote-cover-copy"><p>PROPUESTA PERSONALIZADA</p><h1>Hola, ${c.name.split(' ')[0]}.<br>Tu salud merece una buena decisión.</h1><p>Preparamos una propuesta para acompañarte en cada etapa.</p></div><div class="cover-card"><div><small>PLAN ELEGIDO</small><strong>${p.name}</strong><span>${c.adults} adulto${c.adults>1?'s':''}${c.children?` · ${c.children} menor${c.children>1?'es':''}`:''}</span></div><div><small>VALOR MENSUAL</small><strong>${money(price)}</strong><span>${price==null?'Tarifa pendiente de incorporación':'Valor según tramo y composición'}</span></div></div></section>
   <section class="quote-page quote-network"><div class="network-photo"><img src="assets/images/login-doctor.jpg" alt="Atención personalizada Swiss Medical"></div><div class="network-copy"><p class="eyebrow">UNA RED PARA CUIDARTE</p><h2>Más cerca cuando lo necesitás.</h2><p>Una red preparada para acompañar cada decisión de salud, con atención y respaldo en todo el país.</p><div class="quote-metrics quote-metrics--editorial"><div class="metric"><strong>+100 mil</strong><span>profesionales</span></div><div class="metric"><strong>+4.000</strong><span>clínicas y centros</span></div><div class="metric"><strong>19</strong><span>centros médicos propios</span></div><div class="metric"><strong>11</strong><span>sanatorios propios</span></div></div></div><div class="network-note"><b>Tu cartilla, según tu plan y tu zona.</b><span>La disponibilidad de prestadores se confirma al momento de la contratación.</span></div>${footer(2)}</section>
