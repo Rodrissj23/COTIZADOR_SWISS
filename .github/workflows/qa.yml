@@ -45,3 +45,5 @@ jobs:
           name: swiss-visual-qa
           path: qa-artifacts/
           retention-days: 7
+      - name: Run live Netlify production smoke
+        run: node tests/production-smoke.mjs
