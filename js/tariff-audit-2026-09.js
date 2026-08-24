@@ -1,5 +1,5 @@
 // Correcciones de auditoría contra las capturas oficiales compartidas para Septiembre 2026.
-// Se mantiene data-demo.js como base y este archivo concentra ajustes puntuales verificables.
+// data-demo.js conserva la tabla base; este archivo concentra ajustes puntuales verificados.
 (() => {
   const tariffs = window.SWISS_ZONE_TARIFFS;
   if (!tariffs) return;
@@ -16,10 +16,10 @@
   // AMBA · Obligatorio / Desregulado
   const ambaOblig = tariffs.AMBA?.obligatory;
   if (ambaOblig?.adult?.S1) ambaOblig.adult.S1['46_50'] = 212661;
+  if (ambaOblig?.additionalChild) ambaOblig.additionalChild.S1 = 83061;
 
-  // Patagonia/Salta y Tierra del Fuego pueden coincidir en importes con otras regiones,
-  // pero comercialmente rigen por su propia tabla. Clonamos profundamente para evitar
-  // que una actualización futura de una región modifique otra por referencia compartida.
+  // Patagonia/Salta y Tierra del Fuego rigen por sus propias tablas aunque coincidan
+  // con AMBA. Se clonan para evitar que futuras actualizaciones se propaguen por referencia.
   const clone = value => JSON.parse(JSON.stringify(value));
   if (tariffs['Patagonia / Salta']) {
     tariffs['Patagonia / Salta'] = {
@@ -37,4 +37,14 @@
   // Alias actualizados después de la auditoría.
   window.SWISS_DIRECT_TARIFF = tariffs.AMBA.direct;
   window.SWISS_TARIFF = tariffs.AMBA.obligatory;
+
+  // Helper legado alineado con la regla vigente. El cotizador final usa quote-engine.js.
+  window.getSwissDiscount = (age, modality='Directo', zone='AMBA') => {
+    const discounts = [];
+    if (Number(age) <= 25) discounts.push(50);
+    if (['Nordelta','Tigre'].includes(zone)) discounts.push(25);
+    if (modality === 'Monotributo') discounts.push(25);
+    if (modality === 'Directo') discounts.push(15);
+    return Math.max(0, ...discounts);
+  };
 })();
