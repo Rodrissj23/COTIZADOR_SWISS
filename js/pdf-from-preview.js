@@ -53,14 +53,13 @@
       networkImage.alt = 'Hoy contamos con · Swiss Medical';
     }
 
-    // La propuesta comercial no duplica el alcance técnico reconstruido:
-    // si existe el PDF oficial del plan, se adjunta directamente al descargar.
-    pagesRoot.querySelectorAll('.ref-technical').forEach(page => page.remove());
-
+    // El resumen técnico permanece dentro de la propuesta para que ningún plan
+    // quede sin prestaciones visibles aunque su PDF oficial todavía no esté cargado.
+    // Si el alcance oficial existe, se anexa además al final del PDF descargado.
     const pageCount = pagesRoot.querySelectorAll('.quote-page').length;
     const toolbarText = document.querySelector('.dialog-toolbar small');
     if (toolbarText && pageCount) {
-      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · alcance oficial se adjunta al descargar cuando está disponible`;
+      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · resumen técnico incluido · alcance oficial se adjunta cuando está disponible`;
     }
   }
 
