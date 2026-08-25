@@ -110,6 +110,51 @@
     </section>`;
   }
 
+  function summaryFamilyText(c,quote){
+    if(quote.members.length===1) return `Titular ${quote.members[0].age}`;
+    const partner=quote.members.find(m=>/pareja/i.test(m.role));
+    const childCount=quote.members.filter(m=>/^Hijo/i.test(m.role)).length;
+    const parts=[`Titular ${quote.members[0].age}`];
+    if(partner) parts.push(`Pareja ${partner.age}`);
+    if(childCount) parts.push(`${childCount} hijo${childCount===1?'':'s'}`);
+    return parts.join(' · ');
+  }
+
+  function summaryPage(c,p,quote){
+    const rows=[
+      ['Grupo familiar',summaryFamilyText(c,quote),''],
+      ['Zona',c.zone,''],
+      ['Valor detalle',money(detailValue(quote)),''],
+      ['Fliar a cargo',money(familyCharge(quote)),''],
+      ['Aportes a descontar',quote.aporteComputable>0?`- ${money(quote.aporteComputable)}`:moneyOrZero(0),''],
+      ['Descuento promocional',promoText(quote),quote.discount>0?'Bonificación comercial aplicada':''],
+      ['Descuento multiproducto',moneyOrZero(0),''],
+      ['IVA','Incluido','']
+    ];
+    let y=323;
+    const rowSvg=rows.map(([label,value,note])=>{
+      const labelH=32,valueH=note?45:35;
+      const valueSize=value.length>34?18:value.length>24?20:24;
+      const block=`<rect x="120" y="${y}" width="574" height="${labelH}" fill="#c6b5b5"/><text x="407" y="${y+23}" text-anchor="middle" font-size="24" font-weight="700" fill="#403940">${esc(label)}</text><rect x="120" y="${y+labelH}" width="574" height="${valueH}" fill="#efe0df"/><text x="407" y="${y+labelH+(note?27:25)}" text-anchor="middle" font-size="${valueSize}" font-weight="400" fill="#403940">${esc(value)}</text>${note?`<text x="407" y="${y+labelH+40}" text-anchor="middle" font-size="10.5" fill="#403940">${esc(note)}</text>`:''}`;
+      y+=labelH+valueH;
+      return block;
+    }).join('');
+    const totalY=y;
+    return `<section class="quote-page ref-page ref-summary ref-summary--svg"><svg class="ref-summary-svg" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
+      <rect width="794" height="1123" fill="#c61f20"/>
+      <circle cx="10" cy="130" r="140" fill="#ee231c" opacity=".55"/><circle cx="760" cy="140" r="160" fill="#991b21" opacity=".48"/><circle cx="760" cy="665" r="150" fill="#9f1c22" opacity=".45"/><circle cx="70" cy="905" r="150" fill="#e4231c" opacity=".38"/>
+      <path d="M58 40H734V996Q734 1083 647 1083H58Z" fill="#efe0df"/>
+      <path d="M58 40H588V111Q588 151 548 151H58Z" fill="#db221d"/>
+      <text x="132" y="109" font-size="30" font-weight="400" fill="#fff">| Nueva</text><text x="264" y="109" font-size="31" font-weight="700" fill="#fff">COTIZACIÓN</text>
+      <text x="407" y="225" text-anchor="middle" font-size="20" fill="#403940">PLAN</text><text x="407" y="294" text-anchor="middle" font-size="56" font-weight="700" fill="#403940">${esc(displayPlanName(p.name))}</text>
+      ${rowSvg}
+      <rect x="120" y="${totalY}" width="574" height="36" fill="#ee2118"/><text x="407" y="${totalY+26}" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">Total</text>
+      <rect x="120" y="${totalY+36}" width="574" height="48" fill="#efe0df"/><text x="407" y="${totalY+70}" text-anchor="middle" font-size="31" font-weight="700" fill="#403940">${esc(money(quote.finalPrice))}</text>
+      <text x="120" y="${totalY+112}" font-size="11.5" fill="#50484d"><tspan x="120">*Los datos exhibidos en el siguiente reporte son una aproximación de los valores finales y pueden variar</tspan><tspan x="120" dy="14">por ajustes de precios o dependiendo de la fidelidad de los datos brindados al cotizador.</tspan><tspan x="120" dy="17">*Precios correspondientes al tarifario ${esc(TARIFF_LABEL)} · propuesta válida por ${QUOTE_VALIDITY_HOURS} hs.</tspan></text>
+      <g transform="translate(304 1020)"><g fill="#e0003b"><rect x="0" y="0" width="20" height="20"/><rect x="27" y="0" width="20" height="20"/><rect x="0" y="27" width="20" height="20"/><rect x="27" y="27" width="20" height="20"/></g><text x="61" y="20" font-size="23" fill="#5e555b">SWISS</text><text x="61" y="47" font-size="27" fill="#5e555b">MEDICAL</text></g>
+    </svg></section>`;
+  }
+
   buildQuote = function(){
     if (!state.plan) return;
     const c=state.client,p=state.plan,quote=quoteFor(p);
@@ -121,38 +166,9 @@
     const total=3+familyPages.length+techPages.length;
     const pages=[];
 
-    pages.push(`<section class="quote-page ref-page ref-cover">
-      <div class="ref-pattern"></div>
-      <div class="ref-cover-panel">
-        <div class="ref-cover-copy"><h1>Hola,<br>¿cómo<br>estás hoy?</h1><h2>Te acercamos tu cotización.</h2></div>
-        <div class="ref-cover-logo">${refBrand(true)}</div>
-      </div>
-    </section>`);
-
+    pages.push(`<section class="quote-page ref-page ref-cover"><div class="ref-pattern"></div><div class="ref-cover-panel"><div class="ref-cover-copy"><h1>Hola,<br>¿cómo<br>estás hoy?</h1><h2>Te acercamos tu cotización.</h2></div><div class="ref-cover-logo">${refBrand(true)}</div></div></section>`);
     pages.push(`<section class="quote-page ref-page ref-network ref-network--image"><img src="assets/images/swiss-network-reference.svg" alt="Hoy contamos con · Swiss Medical"></section>`);
-
-    const familyText=quote.members.map(m=>`${m.role} ${m.age}`).join(' · ');
-    pages.push(`<section class="quote-page ref-page ref-summary">
-      <div class="ref-pattern"></div>
-      <div class="ref-summary-panel">
-        <div class="ref-summary-title"><span>| Nueva</span> <b>COTIZACIÓN</b></div>
-        <div class="ref-summary-plan"><span>PLAN</span><strong>${esc(displayPlanName(p.name))}</strong></div>
-        <div class="ref-summary-table">
-          <div class="ref-summary-pair"><b>Grupo familiar</b><span>${esc(familyText || compositionLabel(c))}</span></div>
-          <div class="ref-summary-pair"><b>Zona</b><span>${esc(c.zone)}</span></div>
-          <div class="ref-summary-pair"><b>Valor detalle</b><span>${money(detailValue(quote))}</span></div>
-          <div class="ref-summary-pair"><b>Fliar a cargo</b><span>${money(familyCharge(quote))}</span></div>
-          <div class="ref-summary-pair"><b>Aportes a descontar</b><span>${quote.aporteComputable>0?`- ${money(quote.aporteComputable)}`:moneyOrZero(0)}</span></div>
-          <div class="ref-summary-pair ref-summary-pair--promo"><b>Descuento promocional</b><span>${promoText(quote)}${quote.discount>0?'<small>Bonificación comercial aplicada</small>':''}</span></div>
-          <div class="ref-summary-pair"><b>Descuento multiproducto</b><span>${moneyOrZero(0)}</span></div>
-          <div class="ref-summary-pair"><b>IVA</b><span>Incluido</span></div>
-          <div class="ref-summary-total"><b>Total</b><strong>${money(quote.finalPrice)}</strong></div>
-        </div>
-        <p class="ref-summary-note">*Los datos exhibidos en el siguiente reporte son una aproximación de los valores finales y pueden variar por ajustes de precios o dependiendo de la fidelidad de los datos brindados al cotizador.<br>*Precios correspondientes al tarifario ${esc(TARIFF_LABEL)} · propuesta válida por ${QUOTE_VALIDITY_HOURS} hs.</p>
-        <div class="ref-summary-logo">${refBrand(false)}</div>
-      </div>
-    </section>`);
-
+    pages.push(summaryPage(c,p,quote));
     familyPages.forEach((members,index)=>pages.push(familyDetailPage(p,quote,members,index,familyPages.length)));
     techPages.forEach((rows,index)=>pages.push(technicalPage(p,benefit,rows,index,techPages.length)));
 
