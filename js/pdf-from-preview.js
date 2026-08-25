@@ -4,8 +4,11 @@
   const openQuoteButton = document.querySelector('#openQuote');
   if (!button || !pagesRoot) return;
 
-  const ORIGINAL_NETWORK_IMAGE = 'assets/images/swiss-network-reference.svg';
   const PDF_LIB_URL = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+  const INTRO_PAGE_FILES = [
+    'assets/static/swiss-intro-page1.jpg.b64',
+    'assets/static/swiss-intro-page2.jpg.b64'
+  ];
   const COVERAGE_FILES = {
     'AMBU1': 'AMBU1 08_2026.pdf.b64',
     'AMBU2': 'AMBU2 08_2026.pdf.b64',
@@ -23,6 +26,8 @@
     'SPORT+': 'SPORT+ 08_2026.pdf.b64',
     'SPORT S': 'SPORT-S 08_2026.pdf.b64'
   };
+
+  let introPagesPromise = null;
 
   const safeFileName = value => String(value || 'Cliente')
     .replace(/[\\/:*?"<>|]/g, '')
@@ -54,12 +59,72 @@
     }));
   };
 
-  function normalizePreview() {
-    const networkImage = pagesRoot.querySelector('.ref-network--image img');
-    if (networkImage) {
-      networkImage.src = ORIGINAL_NETWORK_IMAGE;
-      networkImage.alt = 'Hoy contamos con · Swiss Medical';
+  function base64ToBytes(base64) {
+    const clean = String(base64 || '').replace(/\s+/g, '');
+    const binary = atob(clean);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
+    return bytes;
+  }
+
+  function looksLikePdf(bytes) {
+    return bytes?.length > 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+  }
+
+  function looksLikeJpeg(bytes) {
+    return bytes?.length > 4 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9;
+  }
+
+  async function getIntroPageDataUrls() {
+    if (introPagesPromise) return introPagesPromise;
+
+    introPagesPromise = Promise.all(INTRO_PAGE_FILES.map(async (fileName, index) => {
+      const response = await fetch(fileName, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`No se pudo cargar la hoja original ${index + 1} de Swiss Medical.`);
+
+      const encoded = String(await response.text()).replace(/\s+/g, '');
+      if (encoded.length < 1000) throw new Error(`La hoja original ${index + 1} de Swiss Medical está vacía o dañada.`);
+
+      try {
+        const bytes = base64ToBytes(encoded);
+        if (!looksLikeJpeg(bytes)) throw new Error('firma JPEG inválida');
+      } catch (error) {
+        console.error(`Hoja original ${index + 1} inválida:`, error);
+        throw new Error(`La hoja original ${index + 1} de Swiss Medical está dañada.`);
+      }
+
+      return `data:image/jpeg;base64,${encoded}`;
+    }));
+
+    try {
+      return await introPagesPromise;
+    } catch (error) {
+      introPagesPromise = null;
+      throw error;
     }
+  }
+
+  async function installOriginalIntroPages() {
+    const coverPage = pagesRoot.querySelector('.ref-cover');
+    const networkPage = pagesRoot.querySelector('.ref-network--image');
+    if (!coverPage || !networkPage) return;
+
+    const [coverSrc, networkSrc] = await getIntroPageDataUrls();
+    const pages = [
+      [coverPage, coverSrc, 'Portada original de Swiss Medical'],
+      [networkPage, networkSrc, 'Hoy contamos con · Swiss Medical']
+    ];
+
+    pages.forEach(([page, src, alt], index) => {
+      page.classList.add('ref-intro-original', `ref-intro-original--${index + 1}`);
+      page.innerHTML = `<img src="${src}" alt="${alt}" data-original-intro="${index + 1}" style="display:block;width:100%;height:100%;object-fit:cover;object-position:center;">`;
+    });
+  }
+
+  async function normalizePreview() {
+    // Las dos primeras hojas no se reconstruyen: se cargan directamente desde
+    // las páginas originales entregadas por el usuario.
+    await installOriginalIntroPages();
 
     // La propuesta comercial no incorpora resúmenes de cobertura reconstruidos.
     // El alcance médico exacto se adjunta luego como PDF oficial del plan.
@@ -68,18 +133,20 @@
     const pageCount = pagesRoot.querySelectorAll('.quote-page').length;
     const toolbarText = document.querySelector('.dialog-toolbar small');
     if (toolbarText && pageCount) {
-      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · alcance oficial exacto incluido en la descarga`;
+      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · 2 hojas originales + alcance oficial exacto`;
     }
   }
 
-  // quote-reference.js arma la vista base. En esta capa final eliminamos cualquier
-  // hoja técnica sintética para respetar el orden: portada -> institucional ->
-  // cotización -> detalle familiar -> alcance oficial exacto.
+  // quote-reference.js arma la estructura base. Esta capa sustituye las dos
+  // primeras hojas recreadas por las hojas originales y elimina cualquier
+  // hoja técnica sintética.
   if (typeof window.buildQuote === 'function') {
     const buildQuoteBase = window.buildQuote;
     window.buildQuote = function(...args) {
       const result = buildQuoteBase.apply(this, args);
-      normalizePreview();
+      Promise.resolve().then(normalizePreview).catch(error => {
+        console.error('No se pudieron instalar las hojas originales:', error);
+      });
       return result;
     };
   }
@@ -99,18 +166,6 @@
       script.onerror = reject;
       document.head.appendChild(script);
     });
-  }
-
-  function base64ToBytes(base64) {
-    const clean = String(base64 || '').replace(/\s+/g, '');
-    const binary = atob(clean);
-    const bytes = new Uint8Array(binary.length);
-    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
-    return bytes;
-  }
-
-  function looksLikePdf(bytes) {
-    return bytes?.length > 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
   }
 
   async function getCoverageBytes(planName) {
@@ -134,27 +189,15 @@
     }
   }
 
-  function imageElementToDataUrl(img) {
-    if (!img?.naturalWidth || !img?.naturalHeight) throw new Error('No se pudo cargar la página institucional original.');
-    const canvas = document.createElement('canvas');
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const context = canvas.getContext('2d', { alpha: false });
-    context.fillStyle = '#ffffff';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.98);
-  }
-
   async function buildProposalPdfBytes() {
     const JsPDF = window.jspdf?.jsPDF;
     const capture = window.html2canvas;
-    const pages = [...pagesRoot.querySelectorAll('.quote-page')];
     if (!JsPDF || !capture) throw new Error('No se pudo cargar el generador visual del PDF.');
-    if (!pages.length) throw new Error('Primero abrí la vista previa de la cotización.');
 
-    normalizePreview();
+    await normalizePreview();
     const finalPages = [...pagesRoot.querySelectorAll('.quote-page')];
+    if (!finalPages.length) throw new Error('Primero abrí la vista previa de la cotización.');
+
     if (document.fonts?.ready) await document.fonts.ready;
     await waitForImages(pagesRoot);
 
@@ -165,12 +208,12 @@
       const page = finalPages[index];
       if (index > 0) pdf.addPage('a4', 'portrait');
 
-      // La institucional es una captura estática completa: se inserta directamente
-      // para evitar que html2canvas altere sus proporciones o recorte la imagen.
-      if (page.classList.contains('ref-network--image')) {
-        const img = page.querySelector('img');
-        const image = imageElementToDataUrl(img);
-        pdf.addImage(image, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+      // Las hojas 1 y 2 se insertan desde sus imágenes originales, sin
+      // html2canvas, sin redibujarlas y sin alterar su composición.
+      if (page.classList.contains('ref-intro-original')) {
+        const img = page.querySelector('img[data-original-intro]');
+        if (!img?.src) throw new Error('No se pudo cargar una de las hojas originales de Swiss Medical.');
+        pdf.addImage(img.src, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
         continue;
       }
 
@@ -221,16 +264,21 @@
   }
 
   if (openQuoteButton) {
-    openQuoteButton.addEventListener('click', () => window.setTimeout(normalizePreview, 0));
+    openQuoteButton.addEventListener('click', () => {
+      window.setTimeout(() => {
+        normalizePreview().catch(error => console.error('No se pudieron cargar las hojas originales:', error));
+      }, 0);
+    });
   }
 
   async function downloadFinalPdf() {
-    normalizePreview();
     const originalText = button.textContent;
     button.disabled = true;
     button.textContent = 'Generando PDF...';
 
     try {
+      await normalizePreview();
+
       const planName = document.querySelector('#selectedName')?.textContent?.trim();
       if (!planName) throw new Error('No se pudo identificar el plan seleccionado.');
 
