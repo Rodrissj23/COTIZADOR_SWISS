@@ -88,6 +88,10 @@
     return bytes;
   }
 
+  function looksLikePdf(bytes) {
+    return bytes?.length > 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+  }
+
   async function getCoverageBytes(planName) {
     const key = normalizePlanName(planName);
     const fileName = COVERAGE_FILES[key];
@@ -96,7 +100,16 @@
     const response = await fetch(`assets/coverage/${encodeURIComponent(fileName)}`, { cache: 'no-store' });
     if (response.status === 404) return null;
     if (!response.ok) throw new Error(`No se pudo cargar el alcance oficial de ${planName}.`);
-    return base64ToBytes(await response.text());
+
+    const encoded = String(await response.text()).replace(/\s+/g, '');
+    if (encoded.length < 100 || !encoded.startsWith('JVBER')) return null;
+
+    try {
+      const bytes = base64ToBytes(encoded);
+      return looksLikePdf(bytes) ? bytes : null;
+    } catch {
+      return null;
+    }
   }
 
   async function buildProposalPdfBytes() {
