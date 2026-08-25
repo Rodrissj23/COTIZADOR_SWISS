@@ -112,11 +112,24 @@ await test('Familia grande pagina la propuesta y no pierde integrantes',async()=
   const c=await card(page,'S2');await c.locator('[data-plan]').click();
   await page.locator('#openQuote').click();
   await page.locator('#quoteDialog').waitFor({state:'visible'});
-  assert(await page.locator('#quotePages .quote-page').count()===6,'7 hijos deberían generar 6 páginas totales');
-  const economic=page.locator('#quotePages .quote-benefits');
+  assert(await page.locator('#quotePages .quote-page').count()===7,'7 hijos deberían generar 7 páginas totales con 3 páginas técnicas');
+  const economic=page.locator('#quotePages .ref-summary');
   assert(await economic.count()===2,'detalle económico debería ocupar 2 páginas');
   const text=await economic.allTextContents();
   for(let i=1;i<=7;i++)assert(text.join(' ').includes(`Hijo ${i}`),`falta Hijo ${i} en la propuesta`);
+  await context.close();
+});
+
+await test('Cotización individual usa 6 páginas base con estética Swiss',async()=>{
+  const {context,page}=await newPage();
+  await openIndex(page);await submit(page);
+  const c=await card(page,'SMG30');await c.locator('[data-plan]').click();
+  await page.locator('#openQuote').click();
+  assert(await page.locator('#quotePages .quote-page').count()===6,'la propuesta individual debería tener 6 páginas');
+  assert(await page.locator('.ref-cover').count()===1,'falta portada de referencia');
+  assert(await page.locator('.ref-network').count()===1,'falta página institucional');
+  assert(await page.locator('.ref-summary').count()===1,'falta detalle económico');
+  assert(await page.locator('.ref-technical').count()===3,'deben existir 3 páginas técnicas');
   await context.close();
 });
 
