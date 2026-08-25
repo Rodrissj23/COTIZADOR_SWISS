@@ -1,7 +1,10 @@
 (() => {
   const button = document.querySelector('#printQuote');
   const pagesRoot = document.querySelector('#quotePages');
+  const openQuoteButton = document.querySelector('#openQuote');
   if (!button || !pagesRoot) return;
+
+  const ORIGINAL_NETWORK_IMAGE = 'assets/images/swiss-network-original.jpg';
 
   const safeFileName = value => String(value || 'Cliente')
     .replace(/[\\/:*?"<>|]/g, '')
@@ -20,7 +23,31 @@
     }));
   };
 
+  function normalizePreview() {
+    const networkImage = pagesRoot.querySelector('.ref-network--image img');
+    if (networkImage) {
+      networkImage.src = ORIGINAL_NETWORK_IMAGE;
+      networkImage.alt = 'Hoy contamos con · Swiss Medical';
+    }
+
+    pagesRoot.querySelectorAll('.ref-technical').forEach(page => page.remove());
+
+    const pageCount = pagesRoot.querySelectorAll('.quote-page').length;
+    const toolbarText = document.querySelector('.dialog-toolbar small');
+    if (toolbarText && pageCount) {
+      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · alcance oficial se adjunta al descargar`;
+    }
+  }
+
+  if (openQuoteButton) {
+    openQuoteButton.addEventListener('click', () => {
+      window.setTimeout(normalizePreview, 0);
+    });
+  }
+
   async function downloadPreviewAsPdf() {
+    normalizePreview();
+
     const JsPDF = window.jspdf?.jsPDF;
     const capture = window.html2canvas;
     const pages = [...pagesRoot.querySelectorAll('.quote-page')];
