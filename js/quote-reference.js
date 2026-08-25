@@ -79,7 +79,7 @@
 
   function technicalChunks(planName){
     const entries=technicalEntries(planName);
-    const maxPerPage=11;
+    const maxPerPage=15;
     const pages=[];
     for(let i=0;i<entries.length;i+=maxPerPage) pages.push(groupEntries(entries.slice(i,i+maxPerPage)));
     return pages.length?pages:[[ {title:'Alcance de la Cobertura',items:['Consultar documentación oficial vigente del plan.']} ]];
@@ -129,9 +129,7 @@
       </div>
     </section>`);
 
-    pages.push(`<section class="quote-page ref-page ref-network ref-network--image">
-      <img src="assets/images/swiss-network-reference.svg" alt="Hoy contamos con · Swiss Medical">
-    </section>`);
+    pages.push(`<section class="quote-page ref-page ref-network ref-network--image"><img src="assets/images/swiss-network-reference.svg" alt="Hoy contamos con · Swiss Medical"></section>`);
 
     const familyText=quote.members.map(m=>`${m.role} ${m.age}`).join(' · ');
     pages.push(`<section class="quote-page ref-page ref-summary">
