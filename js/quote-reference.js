@@ -12,6 +12,10 @@
     return quote.members.slice(1).reduce((sum,member)=>sum + (Number(member.listPrice)||0),0);
   }
 
+  function detailValue(quote){
+    return Number(quote?.members?.[0]?.listPrice) || Number(quote?.listPrice) || 0;
+  }
+
   function promoText(quote){
     const percents=[...new Set((quote.members||[]).map(m=>Number(m.percent)||0).filter(Boolean))];
     if (!quote.discount) return moneyOrZero(0);
@@ -49,49 +53,106 @@
       .replace(/\s+y dermo-estética/gi,'|Dermo-estética')
       .replace(/\s+y óptica con\s+/gi,'|Óptica con ')
       .replace(/\s+y óptica anual/gi,'|Óptica anual');
-    const parts=normalized.split('|').map(part=>part.trim()).filter(Boolean);
-    return parts.length?parts:[text];
+    return normalized.split('|').map(part=>part.trim()).filter(Boolean);
   }
 
-  function technicalRows(planName){
+  function technicalEntries(planName){
     const benefit=window.SWISS_PLAN_BENEFITS?.[planName];
     const highlights=benefit?.highlights || ['Consultar documentación oficial vigente del plan.'];
-    const rows=[];
+    const entries=[];
     highlights.forEach(item=>{
       const title=classifyHighlight(item);
       const parts=explodeHighlight(item);
-      const existing=rows.find(row=>row.title===title);
-      if(existing) existing.items.push(...parts); else rows.push({title,items:parts});
+      (parts.length?parts:[item]).forEach(part=>entries.push({title,item:part}));
+    });
+    return entries;
+  }
+
+  function groupEntries(entries){
+    const rows=[];
+    entries.forEach(entry=>{
+      const existing=rows.find(row=>row.title===entry.title);
+      if(existing) existing.items.push(entry.item); else rows.push({title:entry.title,items:[entry.item]});
     });
     return rows;
   }
 
-  function splitThree(rows){
-    const flat=[];
-    rows.forEach(row=>row.items.forEach(item=>flat.push({title:row.title,item})));
-    const groupSize=Math.max(1,Math.ceil(flat.length/3));
-    return [0,1,2].map(groupIndex=>{
-      const entries=flat.slice(groupIndex*groupSize,(groupIndex+1)*groupSize);
-      const grouped=[];
-      entries.forEach(entry=>{
-        const existing=grouped.find(row=>row.title===entry.title);
-        if(existing) existing.items.push(entry.item); else grouped.push({title:entry.title,items:[entry.item]});
-      });
-      return grouped;
-    });
+  function technicalChunks(planName){
+    const entries=technicalEntries(planName);
+    const maxPerPage=15;
+    const pages=[];
+    for(let i=0;i<entries.length;i+=maxPerPage) pages.push(groupEntries(entries.slice(i,i+maxPerPage)));
+    return pages.length?pages:[[ {title:'Alcance de la Cobertura',items:['Consultar documentación oficial vigente del plan.']} ]];
   }
 
-  function technicalPage(plan,benefit,rows,index){
-    const fallback=rows.length?rows:[{title:'Alcance de la Cobertura',items:['Consultar documentación oficial vigente del plan.']}];
+  function technicalPage(plan,benefit,rows,index,totalTech){
     return `<section class="quote-page ref-page ref-technical">
       <div class="ref-tech-head">Plan ${esc(displayPlanName(plan.name))} | ${esc(benefit?.system||'Sistema')} | Línea ${esc(benefit?.line||'Swiss Medical')}</div>
       <div class="ref-tech-table-head"><span>Alcance de la Cobertura</span><span>${esc(benefit?.system||'Sistema')}</span></div>
       <div class="ref-tech-table">
-        ${fallback.map(row=>`<section class="ref-tech-group"><h3>${esc(row.title)}</h3>${row.items.map(item=>`<div class="ref-tech-row"><span>${esc(item)}</span><b>${index===2?'Según plan':'SC/ST/SL'}</b></div>`).join('')}</section>`).join('')}
+        ${rows.map(row=>`<section class="ref-tech-group"><h3>${esc(row.title)}</h3>${row.items.map(item=>`<div class="ref-tech-row"><span>${esc(item)}</span><b>Según plan</b></div>`).join('')}</section>`).join('')}
       </div>
-      ${index===2?`<div class="ref-tech-notes"><b>Referencias:</b> ST: Sin Tope · SC: Sin Cargo · SL: Sin Límite · CT: Con Tope · CC: Con Cargo · CL: Con Límite.<br>Los topes, cargos, reintegros, exclusiones y condiciones completas se rigen por la documentación oficial vigente de Swiss Medical.</div>`:''}
-      <div class="ref-tech-footer">Vigencia: ${esc(benefit?.source||TARIFF_LABEL)}</div>
+      <div class="ref-tech-notes"><b>Referencias:</b> ST: Sin Tope · SC: Sin Cargo · SL: Sin Límite · CT: Con Tope · CC: Con Cargo · CL: Con Límite.<br>Los topes, cargos, reintegros, exclusiones y condiciones completas se rigen por la documentación oficial vigente de Swiss Medical.</div>
+      <div class="ref-tech-footer">Vigencia: ${esc(benefit?.source||TARIFF_LABEL)}${totalTech>1?` · ${index+1}/${totalTech}`:''}</div>
     </section>`;
+  }
+
+  function familyDetailPage(plan,quote,members,index,total){
+    return `<section class="quote-page ref-page ref-family-detail">
+      <div class="ref-family-head"><span>Detalle por integrante</span><b>${esc(displayPlanName(plan.name))}</b></div>
+      <div class="ref-family-table-head"><span>Integrante</span><span>Valor de lista</span><span>Bonificación</span><span>Valor final</span></div>
+      <div class="ref-family-table">
+        ${members.map(m=>`<div class="ref-family-row"><span><b>${esc(m.role)}</b><small>${m.age} años${m.tariffRole?` · ${esc(m.tariffRole)}`:''}</small></span><span>${money(m.listPrice)}</span><span>${m.percent?`${m.percent}% · ${esc(m.label)}`:'Sin bonificación'}</span><strong>${money(m.finalPrice)}</strong></div>`).join('')}
+      </div>
+      ${index===total-1&&quote.aporteComputable>0?`<div class="ref-family-aporte"><span>Aportes computables</span><b>− ${money(quote.aporteComputable)}</b></div>`:''}
+      ${index===total-1?`<div class="ref-family-total"><span>Total mensual final</span><strong>${money(quote.finalPrice)}</strong></div>`:''}
+      <div class="ref-family-foot">Valores calculados con el tarifario ${esc(TARIFF_LABEL)}.</div>
+    </section>`;
+  }
+
+  function summaryFamilyText(c,quote){
+    if(quote.members.length===1) return `Titular ${quote.members[0].age}`;
+    const partner=quote.members.find(m=>/pareja/i.test(m.role));
+    const childCount=quote.members.filter(m=>/^Hijo/i.test(m.role)).length;
+    const parts=[`Titular ${quote.members[0].age}`];
+    if(partner) parts.push(`Pareja ${partner.age}`);
+    if(childCount) parts.push(`${childCount} hijo${childCount===1?'':'s'}`);
+    return parts.join(' · ');
+  }
+
+  function summaryPage(c,p,quote){
+    const rows=[
+      ['Grupo familiar',summaryFamilyText(c,quote),''],
+      ['Zona',c.zone,''],
+      ['Valor detalle',money(detailValue(quote)),''],
+      ['Fliar a cargo',money(familyCharge(quote)),''],
+      ['Aportes a descontar',quote.aporteComputable>0?`- ${money(quote.aporteComputable)}`:moneyOrZero(0),''],
+      ['Descuento promocional',promoText(quote),quote.discount>0?'Bonificación comercial aplicada':''],
+      ['Descuento multiproducto',moneyOrZero(0),''],
+      ['IVA','Incluido','']
+    ];
+    let y=323;
+    const rowSvg=rows.map(([label,value,note])=>{
+      const labelH=32,valueH=note?45:35;
+      const valueSize=value.length>34?18:value.length>24?20:24;
+      const block=`<rect x="120" y="${y}" width="574" height="${labelH}" fill="#c6b5b5"/><text x="407" y="${y+23}" text-anchor="middle" font-size="24" font-weight="700" fill="#403940">${esc(label)}</text><rect x="120" y="${y+labelH}" width="574" height="${valueH}" fill="#efe0df"/><text x="407" y="${y+labelH+(note?27:25)}" text-anchor="middle" font-size="${valueSize}" font-weight="400" fill="#403940">${esc(value)}</text>${note?`<text x="407" y="${y+labelH+40}" text-anchor="middle" font-size="10.5" fill="#403940">${esc(note)}</text>`:''}`;
+      y+=labelH+valueH;
+      return block;
+    }).join('');
+    const totalY=y;
+    return `<section class="quote-page ref-page ref-summary ref-summary--svg"><svg class="ref-summary-svg" viewBox="0 0 794 1123" xmlns="http://www.w3.org/2000/svg">
+      <rect width="794" height="1123" fill="#c61f20"/>
+      <circle cx="10" cy="130" r="140" fill="#ee231c" opacity=".55"/><circle cx="760" cy="140" r="160" fill="#991b21" opacity=".48"/><circle cx="760" cy="665" r="150" fill="#9f1c22" opacity=".45"/><circle cx="70" cy="905" r="150" fill="#e4231c" opacity=".38"/>
+      <path d="M58 40H734V996Q734 1083 647 1083H58Z" fill="#efe0df"/>
+      <path d="M58 40H588V111Q588 151 548 151H58Z" fill="#db221d"/>
+      <text x="132" y="109" font-size="30" font-weight="400" fill="#fff">| Nueva</text><text x="264" y="109" font-size="31" font-weight="700" fill="#fff">COTIZACIÓN</text>
+      <text x="407" y="225" text-anchor="middle" font-size="20" fill="#403940">PLAN</text><text x="407" y="294" text-anchor="middle" font-size="56" font-weight="700" fill="#403940">${esc(displayPlanName(p.name))}</text>
+      ${rowSvg}
+      <rect x="120" y="${totalY}" width="574" height="36" fill="#ee2118"/><text x="407" y="${totalY+26}" text-anchor="middle" font-size="25" font-weight="700" fill="#fff">Total</text>
+      <rect x="120" y="${totalY+36}" width="574" height="48" fill="#efe0df"/><text x="407" y="${totalY+70}" text-anchor="middle" font-size="31" font-weight="700" fill="#403940">${esc(money(quote.finalPrice))}</text>
+      <text x="120" y="${totalY+112}" font-size="11.5" fill="#50484d"><tspan x="120">*Los datos exhibidos en el siguiente reporte son una aproximación de los valores finales y pueden variar</tspan><tspan x="120" dy="14">por ajustes de precios o dependiendo de la fidelidad de los datos brindados al cotizador.</tspan><tspan x="120" dy="17">*Precios correspondientes al tarifario ${esc(TARIFF_LABEL)} · propuesta válida por ${QUOTE_VALIDITY_HOURS} hs.</tspan></text>
+      <g transform="translate(304 1020)"><g fill="#e0003b"><rect x="0" y="0" width="20" height="20"/><rect x="27" y="0" width="20" height="20"/><rect x="0" y="27" width="20" height="20"/><rect x="27" y="27" width="20" height="20"/></g><text x="61" y="20" font-size="23" fill="#5e555b">SWISS</text><text x="61" y="47" font-size="27" fill="#5e555b">MEDICAL</text></g>
+    </svg></section>`;
   }
 
   buildQuote = function(){
@@ -99,64 +160,17 @@
     const c=state.client,p=state.plan,quote=quoteFor(p);
     if (quote.status!=='ok') return;
 
-    const detailChunks=chunk(quote.members,6);
     const benefit=window.SWISS_PLAN_BENEFITS?.[p.name];
-    const techGroups=splitThree(technicalRows(p.name));
-    const total=5+detailChunks.length;
+    const techPages=technicalChunks(p.name);
+    const familyPages=quote.members.length>1?chunk(quote.members,7):[];
+    const total=3+familyPages.length+techPages.length;
     const pages=[];
 
-    pages.push(`<section class="quote-page ref-page ref-cover">
-      <div class="ref-pattern"></div>
-      <div class="ref-cover-panel">
-        <div class="ref-cover-copy"><h1>Hola,<br>¿cómo<br>estás hoy?</h1><h2>Te acercamos tu cotización.</h2></div>
-        <div class="ref-cover-logo">${refBrand(true)}</div>
-      </div>
-    </section>`);
-
-    pages.push(`<section class="quote-page ref-page ref-network">
-      <div class="ref-network-band"></div>
-      <div class="ref-network-shell">
-        <div class="ref-network-logo">${refBrand(false)}</div>
-        <h2>Hoy contamos con:</h2>
-        <div class="ref-stat ref-stat--wide"><strong>+100mil</strong><span>profesionales<br>de la salud</span></div>
-        <div class="ref-stat ref-stat--wide"><strong>+4.000</strong><span>clínicas, centros<br>médicos y de<br>diagnóstico</span></div>
-        <div class="ref-stat-grid">
-          <div class="ref-stat ref-stat--small"><strong>19</strong><span>centros<br>médicos y<br>odontológicos<br>propios</span></div>
-          <div class="ref-stat ref-stat--small"><strong>11</strong><span>sanatorios<br>propios</span></div>
-        </div>
-        <div class="ref-stat-grid ref-stat-grid--bottom">
-          <div class="ref-info-card"><b>Guardia ágil</b><span>reservá tu lugar en la guardia y esperá tu turno desde donde quieras</span></div>
-          <div class="ref-info-card ref-info-card--switty"><b>Switty</b><span>tus trámites y consultas simple y rápido por Whatsapp</span><div class="ref-switty"><i></i><em></em></div></div>
-        </div>
-      </div>
-    </section>`);
-
-    detailChunks.forEach((members,index)=>{
-      const first=index===0;
-      const isLast=index===detailChunks.length-1;
-      const familyText=members.map(m=>`${m.role} ${m.age}`).join(' · ');
-      pages.push(`<section class="quote-page ref-page ref-summary">
-        <div class="ref-pattern"></div>
-        <div class="ref-summary-panel">
-          <div class="ref-summary-title">| Nueva <b>COTIZACIÓN</b></div>
-          <div class="ref-summary-plan"><span>PLAN</span><strong>${esc(displayPlanName(p.name))}</strong></div>
-          <div class="ref-summary-table">
-            <div class="ref-summary-pair"><b>Grupo familiar</b><span>${esc(familyText || compositionLabel(c))}</span></div>
-            ${first?`<div class="ref-summary-pair"><b>Zona</b><span>${esc(c.zone)}</span></div>`:''}
-            ${first?`<div class="ref-summary-pair"><b>Valor detalle</b><span>${money(quote.listPrice)}</span></div>`:''}
-            ${first?`<div class="ref-summary-pair"><b>Fliar a cargo</b><span>${money(familyCharge(quote))}</span></div>`:''}
-            ${first?`<div class="ref-summary-pair"><b>Aportes a descontar</b><span>${quote.aporteComputable>0?`- ${money(quote.aporteComputable)}`:moneyOrZero(0)}</span></div>`:''}
-            ${first?`<div class="ref-summary-pair"><b>Descuento promocional</b><span>${promoText(quote)}${quote.discount>0?'<small>Bonificación comercial aplicada</small>':''}</span></div>`:''}
-            ${first?`<div class="ref-summary-pair"><b>Descuento multiproducto</b><span>${moneyOrZero(0)}</span></div>`:''}
-            ${first?`<div class="ref-summary-pair"><b>IVA</b><span>Incluido</span></div>`:''}
-            ${isLast?`<div class="ref-summary-total"><b>Total</b><strong>${money(quote.finalPrice)}</strong></div>`:''}
-          </div>
-          ${isLast?`<p class="ref-summary-note">*Los datos exhibidos en el siguiente reporte son una aproximación de los valores finales y pueden variar por ajustes de precios o dependiendo de la fidelidad de los datos brindados al cotizador.<br>*Tarifario: ${esc(TARIFF_LABEL)} · propuesta válida por ${QUOTE_VALIDITY_HOURS} hs desde su emisión.</p><div class="ref-summary-logo">${refBrand(false)}</div>`:''}
-        </div>
-      </section>`);
-    });
-
-    techGroups.forEach((rows,index)=>pages.push(technicalPage(p,benefit,rows,index)));
+    pages.push(`<section class="quote-page ref-page ref-cover"><div class="ref-pattern"></div><div class="ref-cover-panel"><div class="ref-cover-copy"><h1>Hola,<br>¿cómo<br>estás hoy?</h1><h2>Te acercamos tu cotización.</h2></div><div class="ref-cover-logo">${refBrand(true)}</div></div></section>`);
+    pages.push(`<section class="quote-page ref-page ref-network ref-network--image"><img src="assets/images/swiss-network-reference.svg" alt="Hoy contamos con · Swiss Medical"></section>`);
+    pages.push(summaryPage(c,p,quote));
+    familyPages.forEach((members,index)=>pages.push(familyDetailPage(p,quote,members,index,familyPages.length)));
+    techPages.forEach((rows,index)=>pages.push(technicalPage(p,benefit,rows,index,techPages.length)));
 
     $('#quotePages').innerHTML=pages.join('');
     $('.dialog-toolbar small').textContent=`${total} páginas · formato Swiss Medical`;
