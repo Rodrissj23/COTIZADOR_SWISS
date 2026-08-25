@@ -15,13 +15,13 @@
     'SMG02': 'SMG02 08_2026.pdf.b64',
     'SMG20': 'SMG20 08_2026.pdf.b64',
     'SMG30': 'SMG30 08_2026.pdf.b64',
-    'SMG40': 'SMG40 08_2026.pdf.gz.b64',
-    'SMG50': 'SMG50 08_2026.pdf.gz.b64',
-    'SMG60': 'SMG60 08_2026.pdf.gz.b64',
-    'SMG70': 'SMG70 08_2026.pdf.gz.b64',
-    'SPORT': 'SPORT 08_2026.pdf.gz.b64',
-    'SPORT+': 'SPORT+ 08_2026.pdf.gz.b64',
-    'SPORT S': 'SPORT-S 08_2026.pdf.gz.b64'
+    'SMG40': 'SMG40 08_2026.pdf.b64',
+    'SMG50': 'SMG50 08_2026.pdf.b64',
+    'SMG60': 'SMG60 08_2026.pdf.b64',
+    'SMG70': 'SMG70 08_2026.pdf.b64',
+    'SPORT': 'SPORT 08_2026.pdf.b64',
+    'SPORT+': 'SPORT+ 08_2026.pdf.b64',
+    'SPORT S': 'SPORT-S 08_2026.pdf.b64'
   };
 
   const safeFileName = value => String(value || 'Cliente')
@@ -85,14 +85,6 @@
     return bytes;
   }
 
-  async function gunzipBytes(bytes) {
-    if (typeof DecompressionStream !== 'function') {
-      throw new Error('Este navegador no puede descomprimir el alcance oficial. Actualizá el navegador e intentá nuevamente.');
-    }
-    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-    return new Uint8Array(await new Response(stream).arrayBuffer());
-  }
-
   function looksLikePdf(bytes) {
     return bytes?.length > 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
   }
@@ -109,8 +101,7 @@
     if (encoded.length < 100) throw new Error(`El alcance oficial de ${planName} está vacío o dañado.`);
 
     try {
-      let bytes = base64ToBytes(encoded);
-      if (fileName.endsWith('.gz.b64')) bytes = await gunzipBytes(bytes);
+      const bytes = base64ToBytes(encoded);
       if (!looksLikePdf(bytes)) throw new Error('firma PDF inválida');
       return bytes;
     } catch (error) {
