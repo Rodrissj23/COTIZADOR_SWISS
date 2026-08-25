@@ -67,9 +67,18 @@
   }
 
   function splitThree(rows){
-    const groups=[[],[],[]];
-    rows.forEach((row,index)=>groups[index%3].push(row));
-    return groups;
+    const flat=[];
+    rows.forEach(row=>row.items.forEach(item=>flat.push({title:row.title,item})));
+    const groupSize=Math.max(1,Math.ceil(flat.length/3));
+    return [0,1,2].map(groupIndex=>{
+      const entries=flat.slice(groupIndex*groupSize,(groupIndex+1)*groupSize);
+      const grouped=[];
+      entries.forEach(entry=>{
+        const existing=grouped.find(row=>row.title===entry.title);
+        if(existing) existing.items.push(entry.item); else grouped.push({title:entry.title,items:[entry.item]});
+      });
+      return grouped;
+    });
   }
 
   function technicalPage(plan,benefit,rows,index){
