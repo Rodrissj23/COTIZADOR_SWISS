@@ -75,6 +75,31 @@
     return bytes?.length > 4 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9;
   }
 
+  async function rasterAtA4PreviewResolution(src) {
+    const image = new Image();
+    image.src = src;
+    if (image.decode) {
+      try { await image.decode(); } catch {}
+    } else if (!image.complete) {
+      await new Promise(resolve => {
+        image.addEventListener('load', resolve, { once: true });
+        image.addEventListener('error', resolve, { once: true });
+      });
+    }
+    if (!image.naturalWidth || !image.naturalHeight) throw new Error('No se pudo decodificar una hoja original de Swiss Medical.');
+
+    // Se conserva exactamente la composición de la hoja original; este canvas
+    // solo la escala a la resolución A4 usada por la vista previa (794×1123).
+    const canvas = document.createElement('canvas');
+    canvas.width = 794;
+    canvas.height = 1123;
+    const context = canvas.getContext('2d', { alpha: false });
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.97);
+  }
+
   async function getIntroPageDataUrls() {
     if (introPagesPromise) return introPagesPromise;
 
@@ -93,7 +118,7 @@
         throw new Error(`La hoja original ${index + 1} de Swiss Medical está dañada.`);
       }
 
-      return `data:image/jpeg;base64,${encoded}`;
+      return rasterAtA4PreviewResolution(`data:image/jpeg;base64,${encoded}`);
     }));
 
     try {
