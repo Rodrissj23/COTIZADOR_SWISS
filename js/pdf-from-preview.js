@@ -15,13 +15,13 @@
     'SMG02': 'SMG02 08_2026.pdf.b64',
     'SMG20': 'SMG20 08_2026.pdf.b64',
     'SMG30': 'SMG30 08_2026.pdf.b64',
-    'SMG40': 'SMG40 08_2026.pdf.b64',
-    'SMG50': 'SMG50 08_2026.pdf.b64',
-    'SMG60': 'SMG60 08_2026.pdf.b64',
-    'SMG70': 'SMG70 08_2026.pdf.b64',
-    'SPORT': 'SPORT 08_2026.pdf.b64',
-    'SPORT+': 'SPORT+ 08_2026.pdf.b64',
-    'SPORT S': 'SPORT-S 08_2026.pdf.b64'
+    'SMG40': 'SMG40 08_2026.pdf.gz.b64',
+    'SMG50': 'SMG50 08_2026.pdf.gz.b64',
+    'SMG60': 'SMG60 08_2026.pdf.gz.b64',
+    'SMG70': 'SMG70 08_2026.pdf.gz.b64',
+    'SPORT': 'SPORT 08_2026.pdf.gz.b64',
+    'SPORT+': 'SPORT+ 08_2026.pdf.gz.b64',
+    'SPORT S': 'SPORT-S 08_2026.pdf.gz.b64'
   };
 
   const safeFileName = value => String(value || 'Cliente')
@@ -53,13 +53,10 @@
       networkImage.alt = 'Hoy contamos con · Swiss Medical';
     }
 
-    // El resumen técnico permanece dentro de la propuesta para que ningún plan
-    // quede sin prestaciones visibles aunque su PDF oficial todavía no esté cargado.
-    // Si el alcance oficial existe, se anexa además al final del PDF descargado.
     const pageCount = pagesRoot.querySelectorAll('.quote-page').length;
     const toolbarText = document.querySelector('.dialog-toolbar small');
     if (toolbarText && pageCount) {
-      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · resumen técnico incluido · alcance oficial se adjunta cuando está disponible`;
+      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · alcance oficial exacto incluido en la descarga`;
     }
   }
 
@@ -88,6 +85,14 @@
     return bytes;
   }
 
+  async function gunzipBytes(bytes) {
+    if (typeof DecompressionStream !== 'function') {
+      throw new Error('Este navegador no puede descomprimir el alcance oficial. Actualizá el navegador e intentá nuevamente.');
+    }
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+
   function looksLikePdf(bytes) {
     return bytes?.length > 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
   }
@@ -95,20 +100,22 @@
   async function getCoverageBytes(planName) {
     const key = normalizePlanName(planName);
     const fileName = COVERAGE_FILES[key];
-    if (!fileName) return null;
+    if (!fileName) throw new Error(`No existe un alcance oficial configurado para ${planName}.`);
 
     const response = await fetch(`assets/coverage/${encodeURIComponent(fileName)}`, { cache: 'no-store' });
-    if (response.status === 404) return null;
     if (!response.ok) throw new Error(`No se pudo cargar el alcance oficial de ${planName}.`);
 
     const encoded = String(await response.text()).replace(/\s+/g, '');
-    if (encoded.length < 100 || !encoded.startsWith('JVBER')) return null;
+    if (encoded.length < 100) throw new Error(`El alcance oficial de ${planName} está vacío o dañado.`);
 
     try {
-      const bytes = base64ToBytes(encoded);
-      return looksLikePdf(bytes) ? bytes : null;
-    } catch {
-      return null;
+      let bytes = base64ToBytes(encoded);
+      if (fileName.endsWith('.gz.b64')) bytes = await gunzipBytes(bytes);
+      if (!looksLikePdf(bytes)) throw new Error('firma PDF inválida');
+      return bytes;
+    } catch (error) {
+      console.error(`Alcance inválido para ${planName}:`, error);
+      throw new Error(`El alcance oficial de ${planName} está dañado.`);
     }
   }
 
@@ -144,8 +151,6 @@
   }
 
   async function mergeWithOfficialCoverage(proposalBytes, coverageBytes) {
-    if (!coverageBytes) return proposalBytes;
-
     await loadScript(PDF_LIB_URL);
     const { PDFDocument } = window.PDFLib || {};
     if (!PDFDocument) throw new Error('No se pudo cargar el módulo de armado final del PDF.');
