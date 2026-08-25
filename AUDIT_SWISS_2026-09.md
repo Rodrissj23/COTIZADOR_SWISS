@@ -43,6 +43,8 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 21. Grupos grandes: el detalle económico se reparte en páginas adicionales para no cortar integrantes.
 22. Planes parciales: no se ofrecen a titulares o parejas menores de 20 años porque ese rango no aparece en la tabla.
 23. Titular y pareja: edad mínima 18 años también se valida dentro del motor, no solo en el formulario.
+24. Todos los planes conservan un resumen técnico visible dentro de la propuesta, incluso cuando el PDF oficial todavía no está cargado.
+25. Si existe el PDF oficial del plan, se anexa además al final de la descarga; si falta, la descarga comercial no se bloquea.
 
 ## Desregulado
 
@@ -59,11 +61,15 @@ La base calculada no se redondea entre pasos. Por ejemplo, con un aporte de reci
 
 Los resúmenes de `js/benefits.js` se basan en los PDFs oficiales compartidos. S1 y S2 usan la última versión disponible 07/2026; los restantes planes usan 08/2026.
 
+El resumen técnico comercial se mantiene dentro de la vista previa y de la propuesta descargada como capa de respaldo. La carga binaria de alcances oficiales puede completarse por etapas sin dejar ningún plan sin información técnica visible.
+
 ## QA automatizado
 
 `tests/qa.mjs` valida sintaxis, estructura de tarifarios, checkpoints contra las capturas, reglas de descuentos, composición familiar, rangos etarios, Desregulado, tope de aportes, piso $0, disponibilidad regional, beneficios, PDF directo y protección del JavaScript de tarifas.
 
-El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request.
+`tests/browser-qa.mjs` valida además que los 15 planes con disponibilidad comercial tengan contenido técnico visible en la propuesta, que la institucional use la captura original, que el resumen económico refleje importes exactos y que la descarga siga funcionando aunque falte el alcance oficial binario.
+
+El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request configurado.
 
 ## QA visual final
 
