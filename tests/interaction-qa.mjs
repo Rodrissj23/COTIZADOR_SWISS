@@ -74,8 +74,8 @@ await test('Modificar datos después de seleccionar obliga a elegir plan nuevame
   await prepareSelectedPlan(page);
   await page.locator('#zone').selectOption({label:'Córdoba'});
   assert(!(await page.locator('#selectedBar').isVisible()), 'barra seleccionada debería ocultarse');
-  await page.locator('#openQuote').click({force:true});
-  assert(!(await page.locator('#quoteDialog').evaluate(el=>el.open)), 'no debería abrir propuesta con selección invalidada');
+  assert(!(await page.locator('#openQuote').isVisible()), 'botón de propuesta debería quedar inaccesible hasta elegir otro plan');
+  assert(!(await page.locator('#quoteDialog').evaluate(el=>el.open)), 'el diálogo debe permanecer cerrado con la selección invalidada');
   await context.close();
 });
 
