@@ -4,7 +4,7 @@
   const openQuoteButton = document.querySelector('#openQuote');
   if (!button || !pagesRoot) return;
 
-  const ORIGINAL_NETWORK_IMAGE = 'assets/images/swiss-network-original.jpg';
+  const ORIGINAL_NETWORK_IMAGE = 'assets/images/swiss-network-reference.svg';
   const PDF_LIB_URL = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
   const COVERAGE_FILES = {
     'AMBU1': 'AMBU1 08_2026.pdf.b64',
@@ -165,7 +165,7 @@
       const page = finalPages[index];
       if (index > 0) pdf.addPage('a4', 'portrait');
 
-      // La institucional es una captura oficial completa: se inserta directamente
+      // La institucional es una captura estática completa: se inserta directamente
       // para evitar que html2canvas altere sus proporciones o recorte la imagen.
       if (page.classList.contains('ref-network--image')) {
         const img = page.querySelector('img');
