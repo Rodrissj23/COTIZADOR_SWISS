@@ -11,6 +11,7 @@
 - Desregulado con aporte, tope y piso $0.
 - Resumen técnico por plan.
 - PDF comercial con paginación dinámica para grupos grandes.
+- Alcances oficiales completos: 15/15 planes con PDF asociado y validación automática de firma `%PDF`.
 
 ## Correcciones de tarifario detectadas
 
@@ -43,8 +44,8 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 21. Grupos grandes: el detalle económico se reparte en páginas adicionales para no cortar integrantes.
 22. Planes parciales: no se ofrecen a titulares o parejas menores de 20 años porque ese rango no aparece en la tabla.
 23. Titular y pareja: edad mínima 18 años también se valida dentro del motor, no solo en el formulario.
-24. Todos los planes conservan un resumen técnico visible dentro de la propuesta, incluso cuando el PDF oficial todavía no está cargado.
-25. Si existe el PDF oficial del plan, se anexa además al final de la descarga; si falta, la descarga comercial no se bloquea.
+24. Todos los planes conservan un resumen técnico visible dentro de la propuesta.
+25. Los 15 planes tienen alcance oficial asociado y se anexa al final de la descarga; el fallback permanece como protección ante errores de carga o archivos inválidos.
 
 ## Desregulado
 
@@ -57,17 +58,21 @@ precioFinal = máximo(0, precioConBonificaciones - aporteComputable)
 
 La base calculada no se redondea entre pasos. Por ejemplo, con un aporte de recibo de $20.000, el aporte computable es exactamente $51.000.
 
-## Fuentes de beneficios
+## Fuentes de beneficios y alcances
 
 Los resúmenes de `js/benefits.js` se basan en los PDFs oficiales compartidos. S1 y S2 usan la última versión disponible 07/2026; los restantes planes usan 08/2026.
 
-El resumen técnico comercial se mantiene dentro de la vista previa y de la propuesta descargada como capa de respaldo. La carga binaria de alcances oficiales puede completarse por etapas sin dejar ningún plan sin información técnica visible.
+El set binario de alcances quedó completo en `assets/coverage/`: 15/15 archivos esperados. Los documentos incorporados se preservan como páginas oficiales optimizadas para uso web/repositorio. No se debe cambiar artificialmente la vigencia interna de un documento al renombrar el archivo.
+
+El resumen técnico comercial se mantiene dentro de la vista previa y de la propuesta descargada como capa de respaldo adicional.
 
 ## QA automatizado
 
 `tests/qa.mjs` valida sintaxis, estructura de tarifarios, checkpoints contra las capturas, reglas de descuentos, composición familiar, rangos etarios, Desregulado, tope de aportes, piso $0, disponibilidad regional, beneficios, PDF directo y protección del JavaScript de tarifas.
 
-`tests/browser-qa.mjs` valida además que los 15 planes con disponibilidad comercial tengan contenido técnico visible en la propuesta, que la institucional use la captura original, que el resumen económico refleje importes exactos y que la descarga siga funcionando aunque falte el alcance oficial binario.
+`tests/coverage-assets-qa.mjs` exige exactamente los 15 alcances oficiales esperados y valida que cada `.pdf.b64` sea base64 suficiente, tenga prefijo PDF y decodifique con firma `%PDF`.
+
+`tests/browser-qa.mjs` valida además que los 15 planes con disponibilidad comercial tengan contenido técnico visible en la propuesta, que la institucional use la captura original, que el resumen económico refleje importes exactos y que la descarga siga siendo resiliente ante un problema de carga del alcance.
 
 El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request configurado.
 
