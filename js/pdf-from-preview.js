@@ -53,12 +53,14 @@
       networkImage.alt = 'Hoy contamos con · Swiss Medical';
     }
 
+    // La propuesta comercial no duplica el alcance técnico reconstruido:
+    // si existe el PDF oficial del plan, se adjunta directamente al descargar.
     pagesRoot.querySelectorAll('.ref-technical').forEach(page => page.remove());
 
     const pageCount = pagesRoot.querySelectorAll('.quote-page').length;
     const toolbarText = document.querySelector('.dialog-toolbar small');
     if (toolbarText && pageCount) {
-      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · alcance oficial incluido al descargar`;
+      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · alcance oficial se adjunta al descargar cuando está disponible`;
     }
   }
 
@@ -90,10 +92,11 @@
   async function getCoverageBytes(planName) {
     const key = normalizePlanName(planName);
     const fileName = COVERAGE_FILES[key];
-    if (!fileName) throw new Error(`No hay un alcance oficial configurado para ${planName}.`);
+    if (!fileName) return null;
 
     const response = await fetch(`assets/coverage/${encodeURIComponent(fileName)}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`El alcance oficial de ${planName} todavía no está cargado.`);
+    if (response.status === 404) return null;
+    if (!response.ok) throw new Error(`No se pudo cargar el alcance oficial de ${planName}.`);
     return base64ToBytes(await response.text());
   }
 
@@ -129,6 +132,8 @@
   }
 
   async function mergeWithOfficialCoverage(proposalBytes, coverageBytes) {
+    if (!coverageBytes) return proposalBytes;
+
     await loadScript(PDF_LIB_URL);
     const { PDFDocument } = window.PDFLib || {};
     if (!PDFDocument) throw new Error('No se pudo cargar el módulo de armado final del PDF.');
