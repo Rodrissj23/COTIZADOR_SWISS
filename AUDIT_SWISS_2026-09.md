@@ -9,7 +9,6 @@
 - Composición individual, pareja, hijos y pareja+hijos.
 - Bonificaciones no acumulativas.
 - Desregulado con aporte, tope y piso $0.
-- Resumen técnico por plan.
 - PDF comercial con paginación dinámica para grupos grandes.
 - Alcances oficiales completos: 15/15 planes con PDF asociado y validación automática de firma `%PDF`.
 
@@ -44,8 +43,9 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 21. Grupos grandes: el detalle económico se reparte en páginas adicionales para no cortar integrantes.
 22. Planes parciales: no se ofrecen a titulares o parejas menores de 20 años porque ese rango no aparece en la tabla.
 23. Titular y pareja: edad mínima 18 años también se valida dentro del motor, no solo en el formulario.
-24. Todos los planes conservan un resumen técnico visible dentro de la propuesta.
-25. Los 15 planes tienen alcance oficial asociado y se anexa al final de la descarga; el fallback permanece como protección ante errores de carga o archivos inválidos.
+24. La propuesta comercial no incluye resúmenes de cobertura reconstruidos ni inventados.
+25. Los 15 planes tienen alcance oficial asociado y se anexa exactamente al final de la descarga. Si el archivo falta o está dañado, la descarga se bloquea con error explícito en vez de sustituirlo por contenido sintético.
+26. El orden final del PDF es: portada → institucional → cotización → detalle familiar si corresponde → alcance oficial exacto.
 
 ## Desregulado
 
@@ -60,11 +60,11 @@ La base calculada no se redondea entre pasos. Por ejemplo, con un aporte de reci
 
 ## Fuentes de beneficios y alcances
 
-Los resúmenes de `js/benefits.js` se basan en los PDFs oficiales compartidos. S1 y S2 usan la última versión disponible 07/2026; los restantes planes usan 08/2026.
+`js/benefits.js` conserva metadatos comerciales internos basados en los documentos compartidos, pero esos textos no se incorporan como reemplazo de la documentación médica oficial en la propuesta descargada.
 
-El set binario de alcances quedó completo en `assets/coverage/`: 15/15 archivos esperados. Los documentos incorporados se preservan como páginas oficiales optimizadas para uso web/repositorio. No se debe cambiar artificialmente la vigencia interna de un documento al renombrar el archivo.
+El set binario de alcances quedó completo en `assets/coverage/`: 15/15 archivos esperados. No se debe cambiar artificialmente la vigencia interna de un documento al renombrar el archivo.
 
-El resumen técnico comercial se mantiene dentro de la vista previa y de la propuesta descargada como capa de respaldo adicional.
+S1 y S2 usan la última documentación oficial disponible 07/2026; los restantes planes usan 08/2026.
 
 ## QA automatizado
 
@@ -72,10 +72,10 @@ El resumen técnico comercial se mantiene dentro de la vista previa y de la prop
 
 `tests/coverage-assets-qa.mjs` exige exactamente los 15 alcances oficiales esperados y valida que cada `.pdf.b64` sea base64 suficiente, tenga prefijo PDF y decodifique con firma `%PDF`.
 
-`tests/browser-qa.mjs` valida además que los 15 planes con disponibilidad comercial tengan contenido técnico visible en la propuesta, que la institucional use la captura original, que el resumen económico refleje importes exactos y que la descarga siga siendo resiliente ante un problema de carga del alcance.
+`tests/browser-qa.mjs` valida modalidades, familias, importes, aportes, preview, mobile/desktop, ausencia de resúmenes de cobertura sintéticos, página institucional A4 completa y descarga efectiva con el alcance oficial asociado.
 
 El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request configurado.
 
 ## QA visual final
 
-La lógica y las pruebas automatizadas no reemplazan una revisión del sitio desplegado en navegador real. Para el cierre visual se revisan desktop, mobile, login/logout, modal, descarga efectiva del PDF y textos largos.
+La revisión visual final usa los artefactos generados por CI. Se verifican desktop, mobile, login, modal, portada, institucional, hoja económica y el PDF descargado renderizado a imagen. El merge a `main` queda reservado para el bloque 9, una vez confirmados 1–8 en verde.
