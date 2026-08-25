@@ -1,0 +1,24 @@
+Estado de alcances oficiales · Septiembre 2026
+
+Cargados y validados (15/15):
+- AMBU1
+- AMBU2
+- INTER1
+- S1
+- S2
+- SMG02
+- SMG20
+- SMG30
+- SMG40
+- SMG50
+- SMG60
+- SMG70
+- SPORT
+- SPORT S
+- SPORT+
+
+Los 15 planes tienen un archivo .pdf.b64 asociado y el QA exige que todos decodifiquen a un PDF válido con firma %PDF.
+Los alcances incorporados se conservan como páginas oficiales optimizadas para uso web/repositorio.
+La propuesta mantiene además su resumen técnico comercial como capa de respaldo, y el fallback de descarga permanece activo como medida de resiliencia.
+
+Nota de fuente: S1 y S2 corresponden a la última versión oficial disponible 07/2026; los restantes alcances corresponden a 08/2026. No renombrar documentos de otra vigencia como si fueran 08/2026.

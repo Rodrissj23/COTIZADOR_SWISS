@@ -9,8 +9,8 @@
 - Composición individual, pareja, hijos y pareja+hijos.
 - Bonificaciones no acumulativas.
 - Desregulado con aporte, tope y piso $0.
-- Resumen técnico por plan.
 - PDF comercial con paginación dinámica para grupos grandes.
+- Alcances oficiales completos: 15/15 planes con PDF asociado y validación automática de firma `%PDF`.
 
 ## Correcciones de tarifario detectadas
 
@@ -42,26 +42,40 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 20. Todos los planes se presentan visualmente con el mismo nivel de destaque.
 21. Grupos grandes: el detalle económico se reparte en páginas adicionales para no cortar integrantes.
 22. Planes parciales: no se ofrecen a titulares o parejas menores de 20 años porque ese rango no aparece en la tabla.
+23. Titular y pareja: edad mínima 18 años también se valida dentro del motor, no solo en el formulario.
+24. La propuesta comercial no incluye resúmenes de cobertura reconstruidos ni inventados.
+25. Los 15 planes tienen alcance oficial asociado y se anexa exactamente al final de la descarga. Si el archivo falta o está dañado, la descarga se bloquea con error explícito en vez de sustituirlo por contenido sintético.
+26. El orden final del PDF es: portada → institucional → cotización → detalle familiar si corresponde → alcance oficial exacto.
 
 ## Desregulado
 
 ```text
-baseCalculada = redondear(aporteRecibo × 100 ÷ 3)
+baseCalculada = aporteRecibo × 100 ÷ 3
 baseAporte = mínimo(baseCalculada, 4.045.590)
-aporteComputable = baseAporte × 9% × 0,85
+aporteComputable = redondear_a_centavos(baseAporte × 9% × 0,85)
 precioFinal = máximo(0, precioConBonificaciones - aporteComputable)
 ```
 
-## Fuentes de beneficios
+La base calculada no se redondea entre pasos. Por ejemplo, con un aporte de recibo de $20.000, el aporte computable es exactamente $51.000.
 
-Los resúmenes de `js/benefits.js` se basan en los PDFs oficiales compartidos. S1 y S2 usan la última versión disponible 07/2026; los restantes planes usan 08/2026.
+## Fuentes de beneficios y alcances
+
+`js/benefits.js` conserva metadatos comerciales internos basados en los documentos compartidos, pero esos textos no se incorporan como reemplazo de la documentación médica oficial en la propuesta descargada.
+
+El set binario de alcances quedó completo en `assets/coverage/`: 15/15 archivos esperados. No se debe cambiar artificialmente la vigencia interna de un documento al renombrar el archivo.
+
+S1 y S2 usan la última documentación oficial disponible 07/2026; los restantes planes usan 08/2026.
 
 ## QA automatizado
 
 `tests/qa.mjs` valida sintaxis, estructura de tarifarios, checkpoints contra las capturas, reglas de descuentos, composición familiar, rangos etarios, Desregulado, tope de aportes, piso $0, disponibilidad regional, beneficios, PDF directo y protección del JavaScript de tarifas.
 
-El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request.
+`tests/coverage-assets-qa.mjs` exige exactamente los 15 alcances oficiales esperados y valida que cada `.pdf.b64` sea base64 suficiente, tenga prefijo PDF y decodifique con firma `%PDF`.
+
+`tests/browser-qa.mjs` valida modalidades, familias, importes, aportes, preview, mobile/desktop, ausencia de resúmenes de cobertura sintéticos, página institucional A4 completa y descarga efectiva con el alcance oficial asociado.
+
+El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request configurado.
 
 ## QA visual final
 
-La lógica y las pruebas automatizadas no reemplazan una revisión del sitio desplegado en navegador real. Para el cierre visual se revisan desktop, mobile, login/logout, modal, descarga efectiva del PDF y textos largos.
+La revisión visual final usa los artefactos generados por CI. Se verifican desktop, mobile, login, modal, portada, institucional, hoja económica y el PDF descargado renderizado a imagen. El merge a `main` queda reservado para el bloque 9, una vez confirmados 1–8 en verde.

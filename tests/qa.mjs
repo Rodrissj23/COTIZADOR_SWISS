@@ -156,6 +156,12 @@ test('Directo y Monotributo usan sus porcentajes definidos',()=>{
   eq(engine.discountForMember(35,'Monotributo','none','AMBA').percent,25);
 });
 
+test('Titular y pareja deben tener al menos 18 años',()=>{
+  eq(quote('S2',{age:17}).status,'unavailable');
+  eq(quote('S2',{familyType:'partner',age:35,partnerAge:17}).status,'unavailable');
+  eq(quote('S2',{age:18}).status,'ok');
+});
+
 test('Plan parcial no se muestra a los 18/19 y aparece desde los 20',()=>{
   eq(quote('AMBU1',{age:18}).status,'unavailable');
   eq(quote('AMBU1',{age:19}).status,'unavailable');
@@ -211,13 +217,13 @@ test('Cálculo familiar aplica bonificación por integrante',()=>{
   near(q.finalBeforeAportes,q.members.reduce((s,m)=>s+m.finalPrice,0),0.01);
 });
 
-test('Desregulado con $20.000 reconstruye base redondeada y aplica aporte después de descuentos',()=>{
+test('Desregulado con $20.000 aplica la fórmula exacta sin redondear la base intermedia',()=>{
   const q=quote('SMG30',{modality:'Relación de dependencia',receiptContribution:20000});
   eq(q.status,'ok');
   eq(q.listPrice,292125);
-  eq(q.baseCalculated,666667);
-  near(q.aporteComputable,51000.03,0.01);
-  near(q.finalPrice,241124.97,0.01);
+  near(q.baseCalculated,666666.6666666666,0.000001);
+  near(q.aporteComputable,51000,0.01);
+  near(q.finalPrice,241125,0.01);
 });
 
 test('Tope de base Desregulado es $4.045.590',()=>{

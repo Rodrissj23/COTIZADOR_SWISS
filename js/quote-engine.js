@@ -27,7 +27,7 @@
 
   function adultListPrice(tariff, planName, age){
     const numericAge = Number(age);
-    if (!Number.isFinite(numericAge) || numericAge < 0) return null;
+    if (!Number.isFinite(numericAge) || numericAge < 18) return null;
     if (tariff === window.SWISS_AMBULATORY_TARIFF && numericAge < 20) return null;
     // La última fila de las tablas es abierta: "Desde 61" o "Mayor de 80".
     // Si la edad supera el máximo técnico usado en los datos, se conserva esa última banda.
@@ -40,11 +40,12 @@
       return {receiptContribution:0,baseCalculated:0,baseContribution:0,capApplied:false,aporteComputable:0};
     }
     const receiptContribution = Math.max(0, Number(client.receiptContribution) || 0);
-    const baseCalculated = Math.round(receiptContribution * 100 / 3);
+    // Fórmula comercial exacta: aporte de recibo × 100 ÷ 3; luego 9% × 0,85.
+    // La base no se redondea antes del segundo paso para no introducir diferencias de centavos.
+    const baseCalculated = receiptContribution * 100 / 3;
     const baseContribution = Math.min(baseCalculated, CONTRIBUTION_BASE_CAP);
     const capApplied = baseCalculated > CONTRIBUTION_BASE_CAP;
-    // 9% × 0,85 = 7,65%. Se calcula como entero racional para redondear centavos de forma estable.
-    const aporteComputable = Math.round(baseContribution * 765 / 100) / 100;
+    const aporteComputable = roundMoney(baseContribution * 0.09 * 0.85);
     return {receiptContribution,baseCalculated,baseContribution,capApplied,aporteComputable};
   }
 
