@@ -133,7 +133,7 @@
     const pageCount = pagesRoot.querySelectorAll('.quote-page').length;
     const toolbarText = document.querySelector('.dialog-toolbar small');
     if (toolbarText && pageCount) {
-      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · 2 hojas originales + alcance oficial exacto`;
+      toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · 2 hojas originales · alcance oficial exacto incluido en la descarga`;
     }
   }
 
