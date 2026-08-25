@@ -33,14 +33,35 @@
     return 'Beneficios Adicionales';
   }
 
+  function explodeHighlight(text){
+    let normalized=String(text).replace(/\.\s*$/,'');
+    normalized=normalized
+      .replace(/\s*;\s*/g,'|')
+      .replace(/\s+\+\s+/g,'|')
+      .replace(/,\s*maternidad,\s*/gi,'|Maternidad|')
+      .replace(/,\s*maternidad\s*/gi,'|Maternidad')
+      .replace(/,\s*terapia intensiva y UCO/gi,'|Terapia intensiva y UCO')
+      .replace(/,\s*seguro de continuidad/gi,'|Seguro de continuidad')
+      .replace(/,\s*chequeo médico ejecutivo anual/gi,'|Chequeo médico ejecutivo anual')
+      .replace(/,\s*cirugía refractiva/gi,'|Cirugía refractiva')
+      .replace(/\s+y cirugía refractiva/gi,'|Cirugía refractiva')
+      .replace(/\s+y cirugía estética/gi,'|Cirugía estética')
+      .replace(/\s+y dermo-estética/gi,'|Dermo-estética')
+      .replace(/\s+y óptica con\s+/gi,'|Óptica con ')
+      .replace(/\s+y óptica anual/gi,'|Óptica anual');
+    const parts=normalized.split('|').map(part=>part.trim()).filter(Boolean);
+    return parts.length?parts:[text];
+  }
+
   function technicalRows(planName){
     const benefit=window.SWISS_PLAN_BENEFITS?.[planName];
     const highlights=benefit?.highlights || ['Consultar documentación oficial vigente del plan.'];
     const rows=[];
     highlights.forEach(item=>{
       const title=classifyHighlight(item);
+      const parts=explodeHighlight(item);
       const existing=rows.find(row=>row.title===title);
-      if(existing) existing.items.push(item); else rows.push({title,items:[item]});
+      if(existing) existing.items.push(...parts); else rows.push({title,items:parts});
     });
     return rows;
   }
@@ -51,7 +72,7 @@
     return groups;
   }
 
-  function technicalPage(plan,benefit,rows,pageNo,total,index){
+  function technicalPage(plan,benefit,rows,index){
     const fallback=rows.length?rows:[{title:'Alcance de la Cobertura',items:['Consultar documentación oficial vigente del plan.']}];
     return `<section class="quote-page ref-page ref-technical">
       <div class="ref-tech-head">Plan ${esc(displayPlanName(plan.name))} | ${esc(benefit?.system||'Sistema')} | Línea ${esc(benefit?.line||'Swiss Medical')}</div>
@@ -66,7 +87,7 @@
 
   buildQuote = function(){
     if (!state.plan) return;
-    const c=state.client,p=state.plan,quote=quoteFor(p),dates=quoteDates();
+    const c=state.client,p=state.plan,quote=quoteFor(p);
     if (quote.status!=='ok') return;
 
     const detailChunks=chunk(quote.members,6);
@@ -126,7 +147,7 @@
       </section>`);
     });
 
-    techGroups.forEach((rows,index)=>pages.push(technicalPage(p,benefit,rows,3+detailChunks.length+index,total,index)));
+    techGroups.forEach((rows,index)=>pages.push(technicalPage(p,benefit,rows,index)));
 
     $('#quotePages').innerHTML=pages.join('');
     $('.dialog-toolbar small').textContent=`${total} páginas · formato Swiss Medical`;
