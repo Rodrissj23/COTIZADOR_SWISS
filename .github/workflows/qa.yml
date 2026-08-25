@@ -25,6 +25,7 @@ jobs:
           node tests/qa.mjs
           node tests/age-open-ended.mjs
           node tests/auth-qa.mjs
+          node tests/pdf-download-resilience.mjs
       - name: Install browser QA dependencies
         run: |
           npm install --no-save playwright@1.55.0 jspdf@2.5.2
