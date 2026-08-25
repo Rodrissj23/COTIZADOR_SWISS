@@ -42,15 +42,18 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 20. Todos los planes se presentan visualmente con el mismo nivel de destaque.
 21. Grupos grandes: el detalle económico se reparte en páginas adicionales para no cortar integrantes.
 22. Planes parciales: no se ofrecen a titulares o parejas menores de 20 años porque ese rango no aparece en la tabla.
+23. Titular y pareja: edad mínima 18 años también se valida dentro del motor, no solo en el formulario.
 
 ## Desregulado
 
 ```text
-baseCalculada = redondear(aporteRecibo × 100 ÷ 3)
+baseCalculada = aporteRecibo × 100 ÷ 3
 baseAporte = mínimo(baseCalculada, 4.045.590)
-aporteComputable = baseAporte × 9% × 0,85
+aporteComputable = redondear_a_centavos(baseAporte × 9% × 0,85)
 precioFinal = máximo(0, precioConBonificaciones - aporteComputable)
 ```
+
+La base calculada no se redondea entre pasos. Por ejemplo, con un aporte de recibo de $20.000, el aporte computable es exactamente $51.000.
 
 ## Fuentes de beneficios
 
