@@ -167,7 +167,7 @@
     const pages=[];
 
     pages.push(`<section class="quote-page ref-page ref-cover"><div class="ref-pattern"></div><div class="ref-cover-panel"><div class="ref-cover-copy"><h1>Hola,<br>¿cómo<br>estás hoy?</h1><h2>Te acercamos tu cotización.</h2></div><div class="ref-cover-logo">${refBrand(true)}</div></div></section>`);
-    pages.push(`<section class="quote-page ref-page ref-network ref-network--image"><img src="assets/images/swiss-network-reference.svg" alt="Hoy contamos con · Swiss Medical"></section>`);
+    pages.push(`<section class="quote-page ref-page ref-network ref-network--image"><img src="assets/images/swiss-network-original.jpg" alt="Hoy contamos con Swiss Medical"></section>`);
     pages.push(summaryPage(c,p,quote));
     familyPages.forEach((members,index)=>pages.push(familyDetailPage(p,quote,members,index,familyPages.length)));
     techPages.forEach((rows,index)=>pages.push(technicalPage(p,benefit,rows,index,techPages.length)));
