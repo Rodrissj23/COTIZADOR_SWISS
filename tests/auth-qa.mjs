@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { safeEqual,createSession,sessionCookie,clearSessionCookie } from '../netlify/functions/_auth.mjs';
 import { handler as login } from '../netlify/functions/login.mjs';
 import { handler as logout } from '../netlify/functions/logout.mjs';
@@ -24,7 +25,14 @@ assert(response.headers['Set-Cookie']?.includes('sm_session='),'login correcto n
 response=await login({httpMethod:'POST',body:JSON.stringify({username:'qa-user',password:'wrong'})});
 assert(response.statusCode===401,'credenciales incorrectas no devolvieron 401');
 response=await login({httpMethod:'GET'});
-assert(response.statusCode===405,'método inválido no devolvió 405');
+assert(response.statusCode===405,'método inválido de login no devolvió 405');
 response=await logout({httpMethod:'POST'});
-assert(response.statusCode===200&&response.headers['Set-Cookie']?.includes('Max-Age=0'),'logout no limpió sesión');
-console.log('PASS  Autenticación: HMAC, TTL 8h, flags de cookie, login y logout');
+assert(response.statusCode===200&&response.headers['Set-Cookie']?.includes('Max-Age=0'),'logout POST no limpió sesión');
+response=await logout({httpMethod:'GET'});
+assert(response.statusCode===405,'logout GET debería devolver 405');
+
+const edge=fs.readFileSync(new URL('../netlify/edge-functions/auth.js',import.meta.url),'utf8');
+assert(!edge.includes("path.startsWith('/assets/')"),'assets completos no deben ser públicos');
+assert(edge.includes("'/assets/images/login-doctor.jpg'"),'imagen necesaria del login debe seguir pública');
+assert(edge.includes("path.startsWith('/css/')"),'CSS del login debe seguir público');
+console.log('PASS  Autenticación: HMAC, TTL 8h, flags de cookie, métodos y protección de assets');
