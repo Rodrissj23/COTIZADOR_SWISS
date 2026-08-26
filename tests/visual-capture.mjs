@@ -48,6 +48,14 @@ async function choose(page,name){const card=page.locator('.plan-card').filter({h
 }
 
 {
+  const context=await browser.newContext({viewport:{width:1440,height:900}});
+  const page=await context.newPage();
+  await page.goto(`${BASE}/login.html`,{waitUntil:'networkidle'});
+  await page.screenshot({path:`${OUT}/desktop-login.png`,fullPage:true});
+  await context.close();
+}
+
+{
   const context=await browser.newContext({viewport:{width:390,height:844}});
   const page=await context.newPage();
   await page.goto(`${BASE}/login.html`,{waitUntil:'networkidle'});
