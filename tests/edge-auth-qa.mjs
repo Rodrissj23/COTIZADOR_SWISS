@@ -23,7 +23,7 @@ assert((result.response.headers.get('location')||'').includes('/login.html'),'re
 result=await run('/assets/images/login-doctor.jpg');
 assert(result.response.status===200&&result.nextCalls===1,'imagen del login debe ser pública');
 
-result=await run('/assets/images/swiss-medical-logo.png');
+result=await run('/assets/images/swiss-medical-logo.svg');
 assert(result.response.status===200&&result.nextCalls===1,'logo oficial del login debe ser público');
 
 const token=createSession(secret);

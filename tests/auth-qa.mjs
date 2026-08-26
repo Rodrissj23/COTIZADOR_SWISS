@@ -34,6 +34,6 @@ assert(response.statusCode===405,'logout GET debería devolver 405');
 const edge=fs.readFileSync(new URL('../netlify/edge-functions/auth.js',import.meta.url),'utf8');
 assert(!edge.includes("path.startsWith('/assets/')"),'assets completos no deben ser públicos');
 assert(edge.includes("'/assets/images/login-doctor.jpg'"),'imagen necesaria del login debe seguir pública');
-assert(edge.includes("'/assets/images/swiss-medical-logo.png'"),'logo oficial del login debe seguir público');
+assert(edge.includes("'/assets/images/swiss-medical-logo.svg'"),'logo oficial del login debe seguir público');
 assert(edge.includes("path.startsWith('/css/')"),'CSS del login debe seguir público');
 console.log('PASS  Autenticación: HMAC, TTL 8h, flags de cookie, métodos y protección de assets');
