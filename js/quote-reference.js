@@ -53,7 +53,7 @@
       ['Valor detalle',money(detailValue(quote)),''],
       ['Fliar a cargo',money(familyCharge(quote)),''],
       ['Aportes a descontar',quote.aporteComputable>0?`- ${money(quote.aporteComputable)}`:moneyOrZero(0),''],
-      ['Descuento promocional',promoText(quote),quote.discount>0?'Bonificación comercial aplicada':''],
+      ['Descuento promocional',promoText(quote),quote.discount>0?'Campaña comercial aplicada por 12 meses':''],
       ['Descuento multiproducto',moneyOrZero(0),''],
       ['IVA','Incluido','']
     ];

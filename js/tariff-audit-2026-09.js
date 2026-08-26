@@ -42,7 +42,7 @@
   window.getSwissDiscount = (age, modality='Directo', zone='AMBA') => {
     const discounts = [];
     if (Number(age) <= 25) discounts.push(50);
-    if (['Nordelta','Tigre'].includes(zone)) discounts.push(25);
+    if (['Nordelta','Tigre','Pilar','Escobar'].includes(zone)) discounts.push(25);
     if (modality === 'Monotributo') discounts.push(25);
     if (modality === 'Directo') discounts.push(15);
     return Math.max(0, ...discounts);
