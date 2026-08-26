@@ -4,7 +4,7 @@
   const openQuoteButton = document.querySelector('#openQuote');
   if (!button || !pagesRoot) return;
 
-  const PDF_LIB_URL = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+  const PDF_LIB_URL = 'assets/vendor/pdf-lib.min.js';
   const INTRO_PDF_FILE = 'assets/static/swiss-intro-original.pdf';
   const INTRO_PAGE_FILES = [
     'assets/static/swiss-intro-page1.jpg',

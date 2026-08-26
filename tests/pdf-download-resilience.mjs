@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const source = fs.readFileSync(new URL('../js/pdf-from-preview.js', import.meta.url), 'utf8');
+const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const expectedCoverageMap = {
   AMBU1: 'AMBU1 08_2026.pdf', AMBU2: 'AMBU2 08_2026.pdf', INTER1: 'INTER1 08_2026.pdf',
   S1: 'S1 08_2026.pdf', S2: 'S2 08_2026.pdf', SMG02: 'SMG02 08_2026.pdf',
@@ -17,6 +18,7 @@ const checks = [
   ['merge final siempre incorpora cobertura oficial', !source.includes('if (!coverageBytes) return proposalBytes;') && source.includes('const coverageDoc = await PDFDocument.load(coverageBytes);')],
   ['hojas 1 y 2 se copian directamente desde el PDF original', source.includes("const INTRO_PDF_FILE = 'assets/static/swiss-intro-original.pdf'") && source.includes('copyPages(introDoc, [0, 1])')],
   ['hojas originales quedan fuera de html2canvas', source.includes("querySelectorAll('.quote-page:not(.ref-intro-original)')") && !source.includes("pdf.addImage(img.src, 'JPEG'")],
+  ['generadores PDF se sirven localmente sin depender de un CDN', ['html2canvas.min.js','jspdf.umd.min.js','pdf-lib.min.js'].every(file => index.includes(`assets/vendor/${file}`)) && !index.includes('cdn.jsdelivr.net/npm/html2canvas') && !index.includes('cdn.jsdelivr.net/npm/jspdf') && source.includes("const PDF_LIB_URL = 'assets/vendor/pdf-lib.min.js'")],
   ['preview informa alcance oficial exacto', source.includes('alcance oficial exacto incluido en la descarga')],
   ['descarga mantiene nombre comercial', source.includes('Cotizacion Swiss Medical (')]
 ];
