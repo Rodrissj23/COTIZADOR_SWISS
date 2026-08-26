@@ -144,9 +144,23 @@ test('Bonificaciones no se acumulan',()=>{
   eq(engine.discountForMember(35,'Directo','nordelta_tigre','AMBA').percent,25);
 });
 
-test('Nordelta/Tigre solo se aplica dentro de AMBA',()=>{
+test('Campaña Tigre/Pilar/Escobar solo se aplica dentro de AMBA',()=>{
   eq(engine.discountForMember(35,'Relación de dependencia','nordelta_tigre','AMBA').percent,25);
   eq(engine.discountForMember(35,'Relación de dependencia','nordelta_tigre','Córdoba').percent,0);
+});
+
+test('Las campañas muestran vigencia de 12 meses',()=>{
+  ok(engine.discountForMember(25,'Directo','none','AMBA').label.includes('12 meses'),'menor 50%');
+  ok(engine.discountForMember(35,'Directo','none','AMBA').label.includes('12 meses'),'Directo 15%');
+  ok(engine.discountForMember(35,'Monotributo','none','AMBA').label.includes('12 meses'),'Monotributo 25%');
+  ok(engine.discountForMember(35,'Relación de dependencia','nordelta_tigre','AMBA').label.includes('12 meses'),'territorial 25%');
+});
+
+test('Pilar y Escobar usan tarifario AMBA en los alias comerciales',()=>{
+  eq(window.getSwissTariff('S2','Directo','Pilar'),window.getSwissTariff('S2','Directo','AMBA'));
+  eq(window.getSwissTariff('S2','Directo','Escobar'),window.getSwissTariff('S2','Directo','AMBA'));
+  eq(window.getSwissDiscount(35,'Directo','Pilar'),25);
+  eq(window.getSwissDiscount(35,'Directo','Escobar'),25);
 });
 
 test('Desregulado no agrega bonificación automática',()=>eq(engine.discountForMember(35,'Relación de dependencia','none','AMBA').percent,0));
@@ -215,6 +229,16 @@ test('Cálculo familiar aplica bonificación por integrante',()=>{
   eq(q.members[3].percent,50);
   near(q.listPrice,q.members.reduce((s,m)=>s+m.listPrice,0),0.01);
   near(q.finalBeforeAportes,q.members.reduce((s,m)=>s+m.finalPrice,0),0.01);
+});
+
+test('Campaña territorial familiar aplica 25% a adultos y 50% a menores',()=>{
+  const q=quote('S2',{familyType:'partner_children',age:35,partnerAge:36,children:1,childrenAges:[10],specialDiscount:'nordelta_tigre'});
+  eq(q.status,'ok');
+  eq(q.members.length,3);
+  eq(q.members[0].percent,25);
+  eq(q.members[1].percent,25);
+  eq(q.members[2].percent,50);
+  ok(q.members.every(member=>member.label.includes('12 meses')),'vigencia en todos los integrantes');
 });
 
 test('Desregulado con $20.000 aplica la fórmula exacta sin redondear la base intermedia',()=>{

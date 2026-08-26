@@ -98,7 +98,7 @@ function syncCase(){
   $('#caseName').textContent=state.client.name;
   $('#caseInitials').textContent=initials(state.client.name);
   $('#caseComposition').textContent=compositionLabel(state.client);
-  $('#caseMode').textContent=`${displayModality(modality)} · ${zone}${specialDiscount==='nordelta_tigre'?' · Beneficio Nordelta/Tigre':''}`;
+  $('#caseMode').textContent=`${displayModality(modality)} · ${zone}${specialDiscount==='nordelta_tigre'?' · Campaña Tigre/Pilar/Escobar':''}`;
 }
 
 function invalidateSelectedPlan(){

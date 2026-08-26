@@ -187,6 +187,8 @@ window.SWISS_ZONE_TARIFFS = {
   'AMBA': {direct:DIRECT_AMBA, obligatory:OBLIG_AMBA},
   'Nordelta': {direct:DIRECT_AMBA, obligatory:OBLIG_AMBA},
   'Tigre': {direct:DIRECT_AMBA, obligatory:OBLIG_AMBA},
+  'Pilar': {direct:DIRECT_AMBA, obligatory:OBLIG_AMBA},
+  'Escobar': {direct:DIRECT_AMBA, obligatory:OBLIG_AMBA},
   'Buenos Aires Interior / Santa Fe': {direct:DIRECT_BA_SF, obligatory:OBLIG_BA_SF},
   'Santa Fe': {direct:DIRECT_BA_SF, obligatory:OBLIG_BA_SF},
   'Córdoba': {direct:DIRECT_CORDOBA, obligatory:OBLIG_CORDOBA},
@@ -228,7 +230,7 @@ window.getSwissListPrice = (planName, age, adults=1, children=0, modality='Direc
 window.getSwissDiscount = (age, modality='Directo', zone='AMBA') => {
   const discounts = [];
   if (age < 25) discounts.push(50);
-  if (['Nordelta','Tigre'].includes(zone) && age >= 25) discounts.push(25);
+  if (['Nordelta','Tigre','Pilar','Escobar'].includes(zone) && age >= 25) discounts.push(25);
   if (modality === 'Monotributo') discounts.push(25);
   if (modality === 'Directo') discounts.push(15);
   return Math.max(0, ...discounts);

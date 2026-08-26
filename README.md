@@ -16,10 +16,10 @@ Los planes que no tienen precio informado para la zona, modalidad o edad selecci
 
 ## Reglas comerciales
 
-- Directo: 15%.
-- Monotributo: 25%. No descuenta un aporte monetario adicional.
-- Hasta 25 años inclusive: 50%.
-- Beneficio Nordelta / Tigre: 25%, disponible únicamente dentro de AMBA.
+- Directo: 15% durante 12 meses.
+- Monotributo: 25% durante 12 meses. Requiere formularios 184 y 152 de ARCA y no descuenta un aporte monetario adicional.
+- Hasta 25 años y 11 meses: 50% durante 12 meses.
+- Campaña territorial: 25% durante 12 meses para Nordelta o residentes de Tigre, Pilar y Escobar, disponible únicamente dentro de AMBA. Requiere DNI y servicio a nombre del titular.
 - Las bonificaciones **no se acumulan**: por integrante se toma solamente la mayor.
 - Titular y pareja se calculan por separado según su rango etario.
 - Se solicita la edad individual de cada hijo.
@@ -28,6 +28,8 @@ Los planes que no tienen precio informado para la zona, modalidad o edad selecci
 - AMBU1, AMBU2 e INTER1 siguen exclusivamente los rangos informados en su tabla parcial.
 - En planes parciales, si se requiere una tarifa de hijo adicional que la tabla no informa, se solicita validación comercial.
 - DNI es opcional.
+
+La condición general de DNI opcional no reemplaza la documentación obligatoria de una campaña: el beneficio territorial exige DNI y servicio a nombre del titular, y Monotributo exige formularios 184 y 152 de ARCA.
 
 ## Desregulado
 
