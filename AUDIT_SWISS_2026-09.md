@@ -62,7 +62,7 @@ La base calculada no se redondea entre pasos. Por ejemplo, con un aporte de reci
 
 `js/benefits.js` conserva metadatos comerciales internos basados en los documentos compartidos, pero esos textos no se incorporan como reemplazo de la documentación médica oficial en la propuesta descargada.
 
-El set binario de alcances quedó completo en `assets/coverage/`: 15/15 archivos esperados. No se debe cambiar artificialmente la vigencia interna de un documento al renombrar el archivo.
+El set binario de alcances quedó completo en `assets/coverage/`: 15/15 PDFs originales esperados. No se debe cambiar artificialmente la vigencia interna de un documento al renombrar el archivo.
 
 S1 y S2 usan la última documentación oficial disponible 07/2026; los restantes planes usan 08/2026.
 
@@ -70,9 +70,11 @@ S1 y S2 usan la última documentación oficial disponible 07/2026; los restantes
 
 `tests/qa.mjs` valida sintaxis, estructura de tarifarios, checkpoints contra las capturas, reglas de descuentos, composición familiar, rangos etarios, Desregulado, tope de aportes, piso $0, disponibilidad regional, beneficios, PDF directo y protección del JavaScript de tarifas.
 
-`tests/coverage-assets-qa.mjs` exige exactamente los 15 alcances oficiales esperados y valida que cada `.pdf.b64` sea base64 suficiente, tenga prefijo PDF y decodifique con firma `%PDF`.
+`tests/coverage-assets-qa.mjs` exige exactamente los 15 alcances oficiales esperados y fija tamaño y SHA-256 de cada PDF contra el material fuente entregado.
 
-`tests/browser-qa.mjs` valida modalidades, familias, importes, aportes, preview, mobile/desktop, ausencia de resúmenes de cobertura sintéticos, página institucional A4 completa y descarga efectiva con el alcance oficial asociado.
+`tests/intro-assets-qa.mjs` fija tamaño, resolución y SHA-256 del PDF original y de sus dos JPEG internos. También bloquea cualquier regreso al rasterizado A4 o a la inserción de las hojas 1 y 2 mediante `jsPDF`.
+
+`tests/browser-qa.mjs` valida modalidades, familias, importes, aportes, preview, mobile/desktop, ausencia de resúmenes de cobertura sintéticos y descarga efectiva con el alcance oficial asociado. Además comprueba que los JPEG originales siguen dentro del PDF final byte a byte, sin recomprimir.
 
 El workflow `.github/workflows/qa.yml` ejecuta esta batería en GitHub Actions sobre cada push y pull request configurado.
 

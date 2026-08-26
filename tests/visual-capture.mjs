@@ -3,6 +3,8 @@ import fs from 'node:fs';
 
 const BASE=process.env.QA_BASE_URL||'http://127.0.0.1:4173';
 const JSPDF_LOCAL=new URL('../node_modules/jspdf/dist/jspdf.umd.min.js',import.meta.url).pathname;
+const PDFLIB_LOCAL=new URL('../node_modules/pdf-lib/dist/pdf-lib.min.js',import.meta.url).pathname;
+const HTML2CANVAS_LOCAL=new URL('../node_modules/html2canvas/dist/html2canvas.min.js',import.meta.url).pathname;
 const OUT='qa-artifacts';
 fs.mkdirSync(OUT,{recursive:true});
 const browser=await chromium.launch({headless:true});
@@ -10,7 +12,10 @@ const browser=await chromium.launch({headless:true});
 async function setup(viewport){
   const context=await browser.newContext({viewport,acceptDownloads:true});
   const page=await context.newPage();
+  await page.route('https://fonts.googleapis.com/**',route=>route.fulfill({body:'',contentType:'text/css'}));
+  await page.route('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',route=>route.fulfill({path:HTML2CANVAS_LOCAL,contentType:'application/javascript'}));
   await page.route('https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js',route=>route.fulfill({path:JSPDF_LOCAL,contentType:'application/javascript'}));
+  await page.route('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js',route=>route.fulfill({path:PDFLIB_LOCAL,contentType:'application/javascript'}));
   await page.goto(`${BASE}/index.html`,{waitUntil:'networkidle'});
   await page.locator('#clientName').fill('QA Visual');
   return {context,page};

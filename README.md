@@ -61,7 +61,7 @@ La propuesta se descarga directamente con el nombre:
 
 `Cotizacion Swiss Medical (Nombre del cliente).pdf`
 
-Incluye cinco bloques visuales: portada, contexto de cobertura, detalle económico por integrante, resumen técnico del plan y cierre.
+El armado final conserva este orden: las páginas 1 y 2 del PDF original de Swiss Medical, cotización, detalle familiar únicamente cuando corresponde y alcance oficial completo del plan seleccionado. Las dos hojas iniciales se copian directamente con `pdf-lib`; no pasan por `html2canvas` ni se recomprimen.
 
 ## Archivos de mantenimiento
 
@@ -69,6 +69,9 @@ Incluye cinco bloques visuales: portada, contexto de cobertura, detalle económi
 - `js/tariff-audit-2026-09.js`: correcciones auditadas contra las capturas oficiales de Septiembre 2026.
 - `js/benefits.js`: resumen comercial de beneficios por plan basado en los PDFs oficiales compartidos.
 - `js/app.js`: reglas de cálculo, formulario, composición familiar, Desregulado y PDF.
+- `assets/static/swiss-intro-original.pdf`: PDF fuente original; solo sus páginas 1 y 2 se copian al archivo final.
+- `assets/static/swiss-intro-page1.jpg` y `swiss-intro-page2.jpg`: imágenes originales extraídas sin recomprimir del PDF fuente, usadas únicamente en el preview.
+- `assets/coverage/*.pdf`: los 15 alcances oficiales binarios completos; el QA fija su SHA-256 y tamaño contra los archivos fuente.
 
 Para un cambio mensual de precios, priorizar actualizar el tarifario y dejar intacta la lógica de `app.js` salvo que cambie una regla comercial.
 

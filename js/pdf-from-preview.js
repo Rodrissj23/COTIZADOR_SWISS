@@ -5,29 +5,28 @@
   if (!button || !pagesRoot) return;
 
   const PDF_LIB_URL = 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
+  const INTRO_PDF_FILE = 'assets/static/swiss-intro-original.pdf';
   const INTRO_PAGE_FILES = [
-    'assets/static/swiss-intro-page1.jpg.b64',
-    'assets/static/swiss-intro-page2.jpg.b64'
+    'assets/static/swiss-intro-page1.jpg',
+    'assets/static/swiss-intro-page2.jpg'
   ];
   const COVERAGE_FILES = {
-    'AMBU1': 'AMBU1 08_2026.pdf.b64',
-    'AMBU2': 'AMBU2 08_2026.pdf.b64',
-    'INTER1': 'INTER1 08_2026.pdf.b64',
-    'S1': 'S1 08_2026.pdf.b64',
-    'S2': 'S2 08_2026.pdf.b64',
-    'SMG02': 'SMG02 08_2026.pdf.b64',
-    'SMG20': 'SMG20 08_2026.pdf.b64',
-    'SMG30': 'SMG30 08_2026.pdf.b64',
-    'SMG40': 'SMG40 08_2026.pdf.b64',
-    'SMG50': 'SMG50 08_2026.pdf.b64',
-    'SMG60': 'SMG60 08_2026.pdf.b64',
-    'SMG70': 'SMG70 08_2026.pdf.b64',
-    'SPORT': 'SPORT 08_2026.pdf.b64',
-    'SPORT+': 'SPORT+ 08_2026.pdf.b64',
-    'SPORT S': 'SPORT-S 08_2026.pdf.b64'
+    'AMBU1': 'AMBU1 08_2026.pdf',
+    'AMBU2': 'AMBU2 08_2026.pdf',
+    'INTER1': 'INTER1 08_2026.pdf',
+    'S1': 'S1 08_2026.pdf',
+    'S2': 'S2 08_2026.pdf',
+    'SMG02': 'SMG02 08_2026.pdf',
+    'SMG20': 'SMG20 08_2026.pdf',
+    'SMG30': 'SMG30 08_2026.pdf',
+    'SMG40': 'SMG40 08_2026.pdf',
+    'SMG50': 'SMG50 08_2026.pdf',
+    'SMG60': 'SMG60 08_2026.pdf',
+    'SMG70': 'SMG70 08_2026.pdf',
+    'SPORT': 'SPORT 08_2026.pdf',
+    'SPORT+': 'SPORT+ 08_2026.pdf',
+    'SPORT S': 'SPORT-S 08_2026.pdf'
   };
-
-  let introPagesPromise = null;
 
   const safeFileName = value => String(value || 'Cliente')
     .replace(/[\\/:*?"<>|]/g, '')
@@ -59,97 +58,32 @@
     }));
   };
 
-  function base64ToBytes(base64) {
-    const clean = String(base64 || '').replace(/\s+/g, '');
-    const binary = atob(clean);
-    const bytes = new Uint8Array(binary.length);
-    for (let index = 0; index < binary.length; index++) bytes[index] = binary.charCodeAt(index);
-    return bytes;
-  }
-
   function looksLikePdf(bytes) {
     return bytes?.length > 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
   }
 
-  function looksLikeJpeg(bytes) {
-    return bytes?.length > 4 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9;
-  }
-
-  async function rasterAtA4PreviewResolution(src) {
-    const image = new Image();
-    image.src = src;
-    if (image.decode) {
-      try { await image.decode(); } catch {}
-    } else if (!image.complete) {
-      await new Promise(resolve => {
-        image.addEventListener('load', resolve, { once: true });
-        image.addEventListener('error', resolve, { once: true });
-      });
-    }
-    if (!image.naturalWidth || !image.naturalHeight) throw new Error('No se pudo decodificar una hoja original de Swiss Medical.');
-
-    // Se conserva exactamente la composición de la hoja original; este canvas
-    // solo la escala a la resolución A4 usada por la vista previa (794×1123).
-    const canvas = document.createElement('canvas');
-    canvas.width = 794;
-    canvas.height = 1123;
-    const context = canvas.getContext('2d', { alpha: false });
-    context.fillStyle = '#ffffff';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.97);
-  }
-
-  async function getIntroPageDataUrls() {
-    if (introPagesPromise) return introPagesPromise;
-
-    introPagesPromise = Promise.all(INTRO_PAGE_FILES.map(async (fileName, index) => {
-      const response = await fetch(fileName, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`No se pudo cargar la hoja original ${index + 1} de Swiss Medical.`);
-
-      const encoded = String(await response.text()).replace(/\s+/g, '');
-      if (encoded.length < 1000) throw new Error(`La hoja original ${index + 1} de Swiss Medical está vacía o dañada.`);
-
-      try {
-        const bytes = base64ToBytes(encoded);
-        if (!looksLikeJpeg(bytes)) throw new Error('firma JPEG inválida');
-      } catch (error) {
-        console.error(`Hoja original ${index + 1} inválida:`, error);
-        throw new Error(`La hoja original ${index + 1} de Swiss Medical está dañada.`);
-      }
-
-      return rasterAtA4PreviewResolution(`data:image/jpeg;base64,${encoded}`);
-    }));
-
-    try {
-      return await introPagesPromise;
-    } catch (error) {
-      introPagesPromise = null;
-      throw error;
-    }
-  }
-
-  async function installOriginalIntroPages() {
+  function installOriginalIntroPages() {
     const coverPage = pagesRoot.querySelector('.ref-cover');
     const networkPage = pagesRoot.querySelector('.ref-network--image');
     if (!coverPage || !networkPage) return;
 
-    const [coverSrc, networkSrc] = await getIntroPageDataUrls();
     const pages = [
-      [coverPage, coverSrc, 'Portada original de Swiss Medical'],
-      [networkPage, networkSrc, 'Hoy contamos con · Swiss Medical']
+      [coverPage, INTRO_PAGE_FILES[0], 'Portada original de Swiss Medical'],
+      [networkPage, INTRO_PAGE_FILES[1], 'Hoy contamos con · Swiss Medical']
     ];
 
     pages.forEach(([page, src, alt], index) => {
       page.classList.add('ref-intro-original', `ref-intro-original--${index + 1}`);
-      page.innerHTML = `<img src="${src}" alt="${alt}" data-original-intro="${index + 1}" style="display:block;width:100%;height:100%;object-fit:cover;object-position:center;">`;
+      const existing = page.querySelector(`img[data-original-intro="${index + 1}"]`);
+      if (existing?.getAttribute('src') === src) return;
+      page.innerHTML = `<img src="${src}" alt="${alt}" data-original-intro="${index + 1}" width="${index === 0 ? 1859 : 1860}" height="2631">`;
     });
   }
 
   async function normalizePreview() {
-    // Las dos primeras hojas no se reconstruyen: se cargan directamente desde
-    // las páginas originales entregadas por el usuario.
-    await installOriginalIntroPages();
+    // Las imágenes de preview son los JPEG originales extraídos sin
+    // recomprimir de las páginas 1 y 2 del PDF entregado por el usuario.
+    installOriginalIntroPages();
 
     // La propuesta comercial no incorpora resúmenes de cobertura reconstruidos.
     // El alcance médico exacto se adjunta luego como PDF oficial del plan.
@@ -160,6 +94,14 @@
     if (toolbarText && pageCount) {
       toolbarText.textContent = `${pageCount} página${pageCount === 1 ? '' : 's'} de propuesta · 2 hojas originales · alcance oficial exacto incluido en la descarga`;
     }
+
+    await waitForImages(pagesRoot);
+    const introImages = [...pagesRoot.querySelectorAll('img[data-original-intro]')];
+    introImages.forEach((image, index) => {
+      if (!image.complete || image.naturalWidth < 1800 || image.naturalHeight < 2600) {
+        throw new Error(`No se pudo cargar la hoja original ${index + 1} de Swiss Medical en máxima calidad.`);
+      }
+    });
   }
 
   // quote-reference.js arma la estructura base. Esta capa sustituye las dos
@@ -201,27 +143,27 @@
     const response = await fetch(`assets/coverage/${encodeURIComponent(fileName)}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`No se pudo cargar el alcance oficial de ${planName}.`);
 
-    const encoded = String(await response.text()).replace(/\s+/g, '');
-    if (encoded.length < 100) throw new Error(`El alcance oficial de ${planName} está vacío o dañado.`);
-
-    try {
-      const bytes = base64ToBytes(encoded);
-      if (!looksLikePdf(bytes)) throw new Error('firma PDF inválida');
-      return bytes;
-    } catch (error) {
-      console.error(`Alcance inválido para ${planName}:`, error);
-      throw new Error(`El alcance oficial de ${planName} está dañado.`);
-    }
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (!looksLikePdf(bytes) || bytes.length < 100000) throw new Error(`El alcance oficial de ${planName} está vacío o dañado.`);
+    return bytes;
   }
 
-  async function buildProposalPdfBytes() {
+  async function getOriginalIntroPdfBytes() {
+    const response = await fetch(INTRO_PDF_FILE, { cache: 'no-store' });
+    if (!response.ok) throw new Error('No se pudo cargar el PDF original de Swiss Medical.');
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (!looksLikePdf(bytes) || bytes.length < 100000) throw new Error('El PDF original de Swiss Medical está vacío o dañado.');
+    return bytes;
+  }
+
+  async function buildDynamicQuotePdfBytes() {
     const JsPDF = window.jspdf?.jsPDF;
     const capture = window.html2canvas;
     if (!JsPDF || !capture) throw new Error('No se pudo cargar el generador visual del PDF.');
 
     await normalizePreview();
-    const finalPages = [...pagesRoot.querySelectorAll('.quote-page')];
-    if (!finalPages.length) throw new Error('Primero abrí la vista previa de la cotización.');
+    const dynamicPages = [...pagesRoot.querySelectorAll('.quote-page:not(.ref-intro-original)')];
+    if (!dynamicPages.length) throw new Error('Primero abrí la vista previa de la cotización.');
 
     if (document.fonts?.ready) await document.fonts.ready;
     await waitForImages(pagesRoot);
@@ -229,18 +171,9 @@
     const pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
     const scale = Math.max(2, Math.min(3, window.devicePixelRatio || 2));
 
-    for (let index = 0; index < finalPages.length; index++) {
-      const page = finalPages[index];
+    for (let index = 0; index < dynamicPages.length; index++) {
+      const page = dynamicPages[index];
       if (index > 0) pdf.addPage('a4', 'portrait');
-
-      // Las hojas 1 y 2 se insertan desde sus imágenes originales, sin
-      // html2canvas, sin redibujarlas y sin alterar su composición.
-      if (page.classList.contains('ref-intro-original')) {
-        const img = page.querySelector('img[data-original-intro]');
-        if (!img?.src) throw new Error('No se pudo cargar una de las hojas originales de Swiss Medical.');
-        pdf.addImage(img.src, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
-        continue;
-      }
 
       const canvas = await capture(page, {
         scale,
@@ -258,17 +191,24 @@
     return new Uint8Array(pdf.output('arraybuffer'));
   }
 
-  async function mergeWithOfficialCoverage(proposalBytes, coverageBytes) {
+  async function mergeFinalPdf(introBytes, quoteBytes, coverageBytes) {
     await loadScript(PDF_LIB_URL);
     const { PDFDocument } = window.PDFLib || {};
     if (!PDFDocument) throw new Error('No se pudo cargar el módulo de armado final del PDF.');
 
-    const proposalDoc = await PDFDocument.load(proposalBytes);
+    const introDoc = await PDFDocument.load(introBytes);
+    if (introDoc.getPageCount() < 2) throw new Error('El PDF original no contiene las dos hojas iniciales esperadas.');
+    const quoteDoc = await PDFDocument.load(quoteBytes);
     const coverageDoc = await PDFDocument.load(coverageBytes);
     const outputDoc = await PDFDocument.create();
 
-    const proposalPages = await outputDoc.copyPages(proposalDoc, proposalDoc.getPageIndices());
-    proposalPages.forEach(page => outputDoc.addPage(page));
+    // Copia directa de las dos primeras páginas del PDF fuente. No pasan por
+    // canvas, no se convierten a imagen y no se vuelven a comprimir.
+    const introPages = await outputDoc.copyPages(introDoc, [0, 1]);
+    introPages.forEach(page => outputDoc.addPage(page));
+
+    const quotePages = await outputDoc.copyPages(quoteDoc, quoteDoc.getPageIndices());
+    quotePages.forEach(page => outputDoc.addPage(page));
 
     const coveragePages = await outputDoc.copyPages(coverageDoc, coverageDoc.getPageIndices());
     coveragePages.forEach(page => outputDoc.addPage(page));
@@ -307,11 +247,12 @@
       const planName = document.querySelector('#selectedName')?.textContent?.trim();
       if (!planName) throw new Error('No se pudo identificar el plan seleccionado.');
 
-      const [proposalBytes, coverageBytes] = await Promise.all([
-        buildProposalPdfBytes(),
+      const [introBytes, quoteBytes, coverageBytes] = await Promise.all([
+        getOriginalIntroPdfBytes(),
+        buildDynamicQuotePdfBytes(),
         getCoverageBytes(planName)
       ]);
-      const finalBytes = await mergeWithOfficialCoverage(proposalBytes, coverageBytes);
+      const finalBytes = await mergeFinalPdf(introBytes, quoteBytes, coverageBytes);
       const clientName = document.querySelector('#clientName')?.value;
       saveBytes(finalBytes, `Cotizacion Swiss Medical (${safeFileName(clientName)}).pdf`);
     } catch (error) {
