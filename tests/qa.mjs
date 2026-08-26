@@ -138,10 +138,11 @@ test('Edad 25 recibe 50% y edad 26 deja de recibirlo',()=>{
   eq(engine.discountForMember(26,'Directo','none','AMBA').percent,15);
 });
 
-test('Bonificaciones no se acumulan',()=>{
-  eq(engine.discountForMember(23,'Monotributo','nordelta_tigre','AMBA').percent,50);
+test('Monotributo no se combina y las otras campañas respetan el descuento por integrante',()=>{
+  eq(engine.discountForMember(23,'Monotributo','nordelta_tigre','AMBA').percent,25);
   eq(engine.discountForMember(35,'Monotributo','nordelta_tigre','AMBA').percent,25);
   eq(engine.discountForMember(35,'Directo','nordelta_tigre','AMBA').percent,25);
+  eq(engine.discountForMember(23,'Directo','nordelta_tigre','AMBA').percent,50);
 });
 
 test('Campaña Tigre/Pilar/Escobar solo se aplica dentro de AMBA',()=>{
@@ -239,6 +240,17 @@ test('Campaña territorial familiar aplica 25% a adultos y 50% a menores',()=>{
   eq(q.members[1].percent,25);
   eq(q.members[2].percent,50);
   ok(q.members.every(member=>member.label.includes('12 meses')),'vigencia en todos los integrantes');
+});
+
+test('Monotributo familiar aplica 25% también a los menores',()=>{
+  const q=quote('S2',{modality:'Monotributo',familyType:'partner_children',age:35,partnerAge:36,children:2,childrenAges:[10,23],specialDiscount:'nordelta_tigre'});
+  eq(q.status,'ok');
+  eq(q.members.length,4);
+  for (const member of q.members){
+    eq(member.percent,25,`${member.role} porcentaje`);
+    eq(member.label,'Monotributo · 12 meses',`${member.role} campaña`);
+  }
+  near(q.finalBeforeAportes,q.listPrice*0.75,0.01,'total familiar Monotributo');
 });
 
 test('Desregulado con $20.000 aplica la fórmula exacta sin redondear la base intermedia',()=>{
