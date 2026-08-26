@@ -63,9 +63,10 @@ function updateCommercialFields(){
   const territorialWrap=$('#specialDiscountWrap');
   const receiptWrap=$('#receiptContributionWrap');
   const receiptInput=$('#receiptContribution');
+  const territorialAvailable=zone==='AMBA' && modality!=='Monotributo';
 
-  if (territorialWrap) territorialWrap.hidden=zone!=='AMBA';
-  if (zone!=='AMBA' && territorial) territorial.value='none';
+  if (territorialWrap) territorialWrap.hidden=!territorialAvailable;
+  if (!territorialAvailable && territorial) territorial.value='none';
   if (receiptWrap) receiptWrap.hidden=modality!==DESREGULADO;
   if (receiptInput) receiptInput.required=modality===DESREGULADO;
   syncChoiceState();
@@ -87,7 +88,7 @@ function syncCase(){
   const childrenAges=hasChildren(familyType)?$$('.child-age',$('#childrenAgeFields')).slice(0,children).map(input=>Number(input.value)):[];
   const modality=$('input[name="modality"]:checked')?.value || 'Directo';
   const zone=$('#zone').value;
-  const specialDiscount=zone==='AMBA'?$('#specialDiscount').value:'none';
+  const specialDiscount=zone==='AMBA' && modality!=='Monotributo'?$('#specialDiscount').value:'none';
   state.client={
     name:$('#clientName').value.trim()||'Nueva cotización',
     dni:$('#clientDni').value.trim(),zone,modality,specialDiscount,familyType,

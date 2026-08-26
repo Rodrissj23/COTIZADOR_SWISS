@@ -228,10 +228,10 @@ window.getSwissListPrice = (planName, age, adults=1, children=0, modality='Direc
 };
 
 window.getSwissDiscount = (age, modality='Directo', zone='AMBA') => {
+  if (modality === 'Monotributo') return 25;
   const discounts = [];
-  if (age < 25) discounts.push(50);
-  if (['Nordelta','Tigre','Pilar','Escobar'].includes(zone) && age >= 25) discounts.push(25);
-  if (modality === 'Monotributo') discounts.push(25);
+  if (Number(age) <= 25) discounts.push(50);
+  if (['Nordelta','Tigre','Pilar','Escobar'].includes(zone)) discounts.push(25);
   if (modality === 'Directo') discounts.push(15);
   return Math.max(0, ...discounts);
 };

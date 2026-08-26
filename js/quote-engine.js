@@ -15,11 +15,13 @@
   }
 
   function discountForMember(age, modality, specialDiscount='none', zone='AMBA'){
+    // Monotributo es la única campaña no combinable: todos los integrantes,
+    // incluidos los menores, reciben exclusivamente el 25%.
+    if (modality === 'Monotributo') return {percent:25,label:'Monotributo · 12 meses'};
     const candidates = [];
     const numericAge = Number(age);
     if (Number.isFinite(numericAge) && numericAge <= 25) candidates.push({percent:50,label:'Menor de 26 · 12 meses'});
     if (specialDiscount === 'nordelta_tigre' && zone === 'AMBA') candidates.push({percent:25,label:'Campaña territorial · 12 meses'});
-    if (modality === 'Monotributo') candidates.push({percent:25,label:'Monotributo · 12 meses'});
     if (modality === 'Directo') candidates.push({percent:15,label:'Directo · 12 meses'});
     if (!candidates.length) return {percent:0,label:'Sin bonificación'};
     return candidates.reduce((best,current)=>current.percent>best.percent?current:best,candidates[0]);

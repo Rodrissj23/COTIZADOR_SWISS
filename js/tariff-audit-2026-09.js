@@ -40,10 +40,10 @@
 
   // Helper legado alineado con la regla vigente. El cotizador final usa quote-engine.js.
   window.getSwissDiscount = (age, modality='Directo', zone='AMBA') => {
+    if (modality === 'Monotributo') return 25;
     const discounts = [];
     if (Number(age) <= 25) discounts.push(50);
     if (['Nordelta','Tigre','Pilar','Escobar'].includes(zone)) discounts.push(25);
-    if (modality === 'Monotributo') discounts.push(25);
     if (modality === 'Directo') discounts.push(15);
     return Math.max(0, ...discounts);
   };

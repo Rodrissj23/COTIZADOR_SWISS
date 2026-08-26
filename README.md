@@ -16,11 +16,10 @@ Los planes que no tienen precio informado para la zona, modalidad o edad selecci
 
 ## Reglas comerciales
 
-- Directo: 15% durante 12 meses.
-- Monotributo: 25% durante 12 meses. Requiere formularios 184 y 152 de ARCA y no descuenta un aporte monetario adicional.
-- Hasta 25 años y 11 meses: 50% durante 12 meses.
-- Campaña territorial: 25% durante 12 meses para Nordelta o residentes de Tigre, Pilar y Escobar, disponible únicamente dentro de AMBA. Requiere DNI y servicio a nombre del titular.
-- Las bonificaciones **no se acumulan**: por integrante se toma solamente la mayor.
+- Directo: adultos 15% durante 12 meses; menores hasta 25 años y 11 meses 50% durante 12 meses.
+- Monotributo: 25% durante 12 meses para todos los integrantes, incluidos los menores. Es la única campaña no combinable, requiere formularios 184 y 152 de ARCA y no descuenta un aporte monetario adicional.
+- Campaña territorial: adultos 25% durante 12 meses y menores hasta 25 años y 11 meses 50% durante 12 meses, para Nordelta o residentes de Tigre, Pilar y Escobar, disponible únicamente dentro de AMBA. Requiere DNI y servicio a nombre del titular.
+- Directo y la campaña territorial pueden convivir con el 50% de menores dentro de una cotización familiar porque el cálculo se realiza por integrante; los porcentajes no se suman sobre una misma persona.
 - Titular y pareja se calculan por separado según su rango etario.
 - Se solicita la edad individual de cada hijo.
 - Hijos de 0 a 21 años: el primero puede usar tarifa `1er Hijo`; los siguientes usan `Hijo Adicional`.

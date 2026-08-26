@@ -7,7 +7,7 @@
 - Tablas Directo/Monotributo y Obligatorio/Desregulado según disponibilidad informada.
 - Planes parciales AMBU1, AMBU2 e INTER1.
 - Composición individual, pareja, hijos y pareja+hijos.
-- Bonificaciones no acumulativas.
+- Compatibilidad familiar de campañas por integrante y excepción no combinable de Monotributo.
 - Campañas comerciales vigentes por 12 meses y sus requisitos documentales.
 - Desregulado con aporte, tope y piso $0.
 - PDF comercial con paginación dinámica para grupos grandes.
@@ -23,13 +23,13 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 
 1. Edad 25: aplica 50% si corresponde por edad.
 2. Edad 26: deja de aplicar el 50% por edad.
-3. Directo + campaña territorial: se toma la bonificación mayor, no se acumulan.
-4. Monotributo + menor de 26: se toma 50%, no 25% + 50%.
+3. Directo familiar: adultos 15% y menores de 26 años 50%.
+4. Monotributo familiar: todos los integrantes reciben 25%, incluidos los menores; no se combina con el 50% por edad.
 5. Desregulado: no agrega bonificación automática.
 6. Desregulado con aporte: aporte computable se resta después de bonificaciones.
 7. Desregulado con aporte alto: base máxima $4.045.590.
 8. Si el aporte computable supera el precio bonificado, el resultado queda en $0.
-9. Campaña Nordelta/Tigre/Pilar/Escobar: 25% por 12 meses y disponible únicamente para AMBA.
+9. Campaña Nordelta/Tigre/Pilar/Escobar: adultos 25% y menores de 26 años 50% por 12 meses; disponible únicamente para AMBA.
 10. Hijo 0–21: puede utilizar `1er Hijo` si todavía no se usó esa tarifa.
 11. Segundo hijo 0–21: `Hijo Adicional`.
 12. Hijo 22–25: siempre `Hijo Adicional`.
@@ -47,9 +47,9 @@ Patagonia/Salta y Tierra del Fuego se mantienen como tablas independientes aunqu
 24. La propuesta comercial no incluye resúmenes de cobertura reconstruidos ni inventados.
 25. Los 15 planes tienen alcance oficial asociado y se anexa exactamente al final de la descarga. Si el archivo falta o está dañado, la descarga se bloquea con error explícito en vez de sustituirlo por contenido sintético.
 26. El orden final del PDF es: portada → institucional → cotización → detalle familiar si corresponde → alcance oficial exacto.
-27. Monotributo: 25% por 12 meses y requiere formularios 184 y 152 de ARCA.
-28. Directo: 15% por 12 meses.
-29. Menores hasta 25 años y 11 meses: 50% por 12 meses.
+27. Monotributo: 25% por 12 meses para todo el grupo, incluidos los menores, y requiere formularios 184 y 152 de ARCA.
+28. Directo: adultos 15% y menores hasta 25 años y 11 meses 50% por 12 meses.
+29. Campaña territorial: adultos 25% y menores hasta 25 años y 11 meses 50% por 12 meses.
 
 ## Desregulado
 
