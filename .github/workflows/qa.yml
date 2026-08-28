@@ -23,6 +23,7 @@ jobs:
       - name: Run logic and auth audit
         run: |
           node tests/qa.mjs
+          node tests/minor-individual.mjs
           node tests/age-open-ended.mjs
           node tests/auth-qa.mjs
           node tests/edge-auth-qa.mjs
