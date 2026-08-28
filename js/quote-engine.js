@@ -29,7 +29,9 @@
 
   function adultListPrice(tariff, planName, age){
     const numericAge = Number(age);
-    if (!Number.isFinite(numericAge) || numericAge < 18) return null;
+    // Un menor puede ingresar solo como titular. En los planes estándar usa la banda
+    // inicial informada por el tarifario y conserva la bonificación de menor.
+    if (!Number.isFinite(numericAge) || numericAge < 0) return null;
     if (tariff === window.SWISS_AMBULATORY_TARIFF && numericAge < 20) return null;
     // La última fila de las tablas es abierta: "Desde 61" o "Mayor de 80".
     // Si la edad supera el máximo técnico usado en los datos, se conserva esa última banda.
@@ -65,11 +67,13 @@
     });
 
     if (hasPartner(client.familyType)){
-      const partnerList = adultListPrice(tariff, plan.name, client.partnerAge);
+      const partnerAge = Number(client.partnerAge);
+      if (!Number.isFinite(partnerAge) || partnerAge < 18) return {status:'unavailable'};
+      const partnerList = adultListPrice(tariff, plan.name, partnerAge);
       if (partnerList == null) return {status:'unavailable'};
       members.push({
-        role:'Pareja', age:Number(client.partnerAge), listPrice:partnerList,
-        ...discountForMember(client.partnerAge,client.modality,client.specialDiscount,client.zone)
+        role:'Pareja', age:partnerAge, listPrice:partnerList,
+        ...discountForMember(partnerAge,client.modality,client.specialDiscount,client.zone)
       });
     }
 
