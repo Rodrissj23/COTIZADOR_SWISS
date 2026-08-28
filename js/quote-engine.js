@@ -3,38 +3,32 @@
   const CONTRIBUTION_BASE_CAP = 4045590;
   const PARTIAL_PLANS = new Set(['AMBU1','AMBU2','INTER1']);
 
-  // Margen mínimo para evitar errores binarios en redondeos monetarios de medio centavo.
   const roundMoney = value => Math.round((Number(value) + 1e-9) * 100) / 100;
   const hasPartner = familyType => ['partner','partner_children'].includes(familyType);
   const hasChildren = familyType => ['children','partner_children'].includes(familyType);
   const isPartialPlan = name => PARTIAL_PLANS.has(name);
-  const displayModality = modality => modality === DESREGULADO ? 'Desregulado' : modality;
+  const displayModality = modality => modality === DESREGULADO ? 'Obligatorio' : modality;
 
   function getTariffFor(planName, modality, zone){
     return window.getSwissTariff?.(planName, modality, zone) ?? null;
   }
 
   function discountForMember(age, modality, specialDiscount='none', zone='AMBA'){
-    // Monotributo es la única campaña no combinable: todos los integrantes,
-    // incluidos los menores, reciben exclusivamente el 25%.
     if (modality === 'Monotributo') return {percent:25,label:'Monotributo · 12 meses'};
     const candidates = [];
     const numericAge = Number(age);
     if (Number.isFinite(numericAge) && numericAge <= 25) candidates.push({percent:50,label:'Menor de 26 · 12 meses'});
     if (specialDiscount === 'nordelta_tigre' && zone === 'AMBA') candidates.push({percent:25,label:'Campaña territorial · 12 meses'});
     if (modality === 'Directo') candidates.push({percent:15,label:'Directo · 12 meses'});
+    if (modality === DESREGULADO) candidates.push({percent:15,label:'Obligatorio · 12 meses'});
     if (!candidates.length) return {percent:0,label:'Sin bonificación'};
     return candidates.reduce((best,current)=>current.percent>best.percent?current:best,candidates[0]);
   }
 
   function adultListPrice(tariff, planName, age){
     const numericAge = Number(age);
-    // Un menor puede ingresar solo como titular. En los planes estándar usa la banda
-    // inicial informada por el tarifario y conserva la bonificación de menor.
     if (!Number.isFinite(numericAge) || numericAge < 0) return null;
     if (tariff === window.SWISS_AMBULATORY_TARIFF && numericAge < 20) return null;
-    // La última fila de las tablas es abierta: "Desde 61" o "Mayor de 80".
-    // Si la edad supera el máximo técnico usado en los datos, se conserva esa última banda.
     const key = tariff?.bands?.find(b => numericAge <= b.max)?.key ?? tariff?.bands?.at(-1)?.key;
     return key ? tariff?.adult?.[planName]?.[key] ?? null : null;
   }
@@ -44,8 +38,6 @@
       return {receiptContribution:0,baseCalculated:0,baseContribution:0,capApplied:false,aporteComputable:0};
     }
     const receiptContribution = Math.max(0, Number(client.receiptContribution) || 0);
-    // Fórmula comercial exacta: aporte de recibo × 100 ÷ 3; luego 9% × 0,85.
-    // La base no se redondea antes del segundo paso para no introducir diferencias de centavos.
     const baseCalculated = receiptContribution * 100 / 3;
     const baseContribution = Math.min(baseCalculated, CONTRIBUTION_BASE_CAP);
     const capApplied = baseCalculated > CONTRIBUTION_BASE_CAP;
