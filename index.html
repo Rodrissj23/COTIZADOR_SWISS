@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/final-audit.css">
   <link rel="stylesheet" href="css/quote-reference.css">
+  <link rel="stylesheet" href="css/ui-corrections.css">
 </head>
 <body>
   <header class="site-header">
@@ -33,16 +34,16 @@
         <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Contanos sobre tu cliente.</h2><p>Primero armamos el caso. Después mostramos los planes disponibles.</p></div></div>
         <form id="quoteForm">
           <div class="field-grid field-grid--3">
-            <label>Nombre y apellido<input id="clientName" required placeholder="Ej. María González"></label>
-            <label>DNI <small class="field-help">Opcional</small><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
-            <label>Zona<select id="zone"><option>AMBA</option><option>Buenos Aires Interior / Santa Fe</option><option>Córdoba</option><option>Patagonia / Salta</option><option>Resto del país</option><option>Tierra del Fuego</option></select></label>
+            <label><span class="field-label">Nombre y apellido</span><input id="clientName" required placeholder="Ej. María González"></label>
+            <label><span class="field-label">DNI <small class="field-help">Opcional</small></span><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
+            <label><span class="field-label">Zona</span><select id="zone"><option>AMBA</option><option>Buenos Aires Interior / Santa Fe</option><option>Córdoba</option><option>Patagonia / Salta</option><option>Resto del país</option><option>Tierra del Fuego</option></select></label>
           </div>
           <hr>
           <div class="section-heading section-heading--small"><span>02</span><div><h3>Modalidad</h3><p>Elegí cómo ingresa la persona.</p></div></div>
           <div class="choice-row" id="modalityChoices">
-            <label class="choice active"><input type="radio" name="modality" value="Directo" checked><b>Directo</b><small>15% por 12 meses</small></label>
-            <label class="choice"><input type="radio" name="modality" value="Monotributo"><b>Monotributo</b><small>25% por 12 meses</small></label>
-            <label class="choice"><input type="radio" name="modality" value="Relación de dependencia"><b>Desregulado</b><small>Con aporte de recibo</small></label>
+            <label class="choice active"><input type="radio" name="modality" value="Directo" checked><b>Directo</b><small>Ingreso particular</small></label>
+            <label class="choice"><input type="radio" name="modality" value="Monotributo"><b>Monotributo</b><small>Ingreso por monotributo</small></label>
+            <label class="choice"><input type="radio" name="modality" value="Relación de dependencia"><b>Obligatorio</b><small>Con aporte de recibo de sueldo</small></label>
           </div>
           <div class="field-grid field-grid--3 conditional-row" id="receiptContributionWrap" hidden>
             <label>Aporte del recibo de sueldo<input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 20000"><small class="field-help">Se aplica el tope vigente de base de aportes.</small></label>
@@ -56,14 +57,30 @@
           </div>
           <div class="field-grid field-grid--3 conditional-row">
             <label id="childrenWrap" hidden>Cantidad de hijos<input id="children" type="number" min="1" step="1" value="1"></label>
-            <label id="specialDiscountWrap">Campaña territorial<select id="specialDiscount"><option value="none">Sin beneficio adicional</option><option value="nordelta_tigre">Nordelta / Tigre / Pilar / Escobar · 25%</option></select><small class="field-help">Requiere DNI y servicio a nombre del titular.</small></label>
+            <label id="specialDiscountWrap">Campaña territorial<select id="specialDiscount"><option value="none">Sin campaña adicional</option><option value="nordelta_tigre">Nordelta / Tigre / Pilar / Escobar</option></select><small class="field-help">Requiere DNI y servicio a nombre del titular.</small></label>
           </div>
           <div id="childrenAgesWrap" class="children-ages-wrap" hidden>
             <p class="children-ages-title">Edad de cada hijo</p>
             <div id="childrenAgeFields" class="children-ages"></div>
             <small>Los hijos pueden incorporarse hasta los 25 años. De 22 a 25 años usan tarifa de hijo adicional.</small>
           </div>
-          <div class="notice"><span>i</span><p><b>Campañas vigentes por 12 meses.</b> En Directo, los adultos reciben 15% y los menores hasta 25 años y 11 meses 50%, incluso cuando ingresan solos como titular. En la campaña Nordelta/Tigre/Pilar/Escobar, los adultos reciben 25% y los menores 50%. Monotributo es la única campaña no combinable: todos los integrantes, incluidos los menores, reciben 25%. Requiere formularios 184 y 152 de ARCA.</p></div>
+
+          <details class="campaign-info">
+            <summary>
+              <span class="campaign-info-icon">i</span>
+              <span class="campaign-info-copy"><b>Campañas y bonificaciones</b><small>Los descuentos y aportes se calculan automáticamente según los datos ingresados.</small></span>
+              <span class="campaign-toggle" aria-hidden="true"></span>
+            </summary>
+            <div class="campaign-info-body">
+              <p><b>Campañas vigentes por 12 meses.</b></p>
+              <p>En modalidad <b>Directo</b>, los adultos reciben un 15% de bonificación y los menores de hasta 25 años y 11 meses un 50%, incluso cuando ingresan solos como titular.</p>
+              <p>En modalidad <b>Obligatorio</b>, los menores de hasta 25 años y 11 meses reciben un 50% de bonificación y, a partir de los 26 años, un 15%. Además, el sistema toma el aporte informado del recibo de sueldo y descuenta automáticamente el aporte computable correspondiente.</p>
+              <p>En la campaña <b>Nordelta / Tigre / Pilar / Escobar</b>, los adultos reciben un 25% y los menores un 50%.</p>
+              <p><b>Monotributo</b> es la única campaña no combinable: todos los integrantes, incluidos los menores, reciben un 25%. Para esta modalidad se requieren los formularios <b>184 y 152 de ARCA</b>.</p>
+              <p><b>Todas las bonificaciones, campañas y aportes se calculan y aplican automáticamente</b> según la modalidad, edad, zona y composición familiar ingresadas.</p>
+            </div>
+          </details>
+
           <button class="button button--red button--wide" type="submit"><span>Ver planes disponibles</span><span>→</span></button>
         </form>
       </div>
