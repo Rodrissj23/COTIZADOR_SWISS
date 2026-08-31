@@ -7,6 +7,9 @@
 
   if (!form || !wrap || !input || !choices.length) return;
 
+  const helper = wrap.querySelector('.field-help');
+  if (helper) helper.textContent = 'Ingresá el aporte que figura en el recibo. El sistema calcula automáticamente el aporte computable.';
+
   function selectedModality(){
     return document.querySelector('input[name="modality"]:checked')?.value || 'Directo';
   }
