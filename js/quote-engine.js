@@ -1,6 +1,6 @@
 (() => {
   const DESREGULADO = 'Relación de dependencia';
-  const CONTRIBUTION_BASE_CAP = 4045590;
+  const CONTRIBUTION_BASE_CAP = null;
   const PARTIAL_PLANS = new Set(['AMBU1','AMBU2','INTER1']);
 
   const roundMoney = value => Math.round((Number(value) + 1e-9) * 100) / 100;
@@ -39,8 +39,8 @@
     }
     const receiptContribution = Math.max(0, Number(client.receiptContribution) || 0);
     const baseCalculated = receiptContribution * 100 / 3;
-    const baseContribution = Math.min(baseCalculated, CONTRIBUTION_BASE_CAP);
-    const capApplied = baseCalculated > CONTRIBUTION_BASE_CAP;
+    const baseContribution = baseCalculated;
+    const capApplied = false;
     const aporteComputable = roundMoney(baseContribution * 0.09 * 0.85);
     return {receiptContribution,baseCalculated,baseContribution,capApplied,aporteComputable};
   }
