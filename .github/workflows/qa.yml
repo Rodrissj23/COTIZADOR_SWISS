@@ -23,7 +23,7 @@ jobs:
       - name: Run logic and auth audit
         run: |
           node tests/tariff-sep26-update.mjs
-          node tests/qa.mjs
+          node tests/core-logic-current.mjs
           node tests/minor-individual.mjs
           node tests/age-open-ended.mjs
           node tests/auth-qa.mjs
