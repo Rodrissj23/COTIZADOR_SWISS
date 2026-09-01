@@ -22,6 +22,7 @@ jobs:
           node-version: '22'
       - name: Run logic and auth audit
         run: |
+          node tests/tariff-sep26-update.mjs
           node tests/qa.mjs
           node tests/minor-individual.mjs
           node tests/age-open-ended.mjs
