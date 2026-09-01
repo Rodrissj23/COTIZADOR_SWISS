@@ -22,7 +22,8 @@ jobs:
           node-version: '22'
       - name: Run logic and auth audit
         run: |
-          node tests/qa.mjs
+          node tests/tariff-sep26-update.mjs
+          node tests/core-logic-current.mjs
           node tests/minor-individual.mjs
           node tests/age-open-ended.mjs
           node tests/auth-qa.mjs
@@ -42,7 +43,7 @@ jobs:
           exit 1
       - name: Run browser and PDF audit
         run: |
-          node tests/browser-qa.mjs
+          node tests/browser-qa-current.mjs
           node tests/interaction-qa.mjs
       - name: Capture visual QA artifacts
         run: node tests/visual-capture.mjs

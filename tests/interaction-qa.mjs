@@ -28,23 +28,24 @@ async function prepareSelectedPlan(page, name='SMG30'){
   await page.locator('#selectedBar').waitFor({ state:'visible' });
 }
 
-await test('El formulario bloquea titular menor de 18', async()=>{
+await test('Titular menor puede cotizar solo y recibe planes compatibles', async()=>{
   const {context,page}=await newPage();
+  await page.locator('#clientName').fill('QA Menor');
   await page.locator('#age').fill('17');
   await page.locator('#quoteForm button[type="submit"]').click();
-  assert(!(await page.locator('#resultados').isVisible()), 'no debería cotizar con titular menor de 18');
-  const valid = await page.locator('#age').evaluate(el=>el.checkValidity());
-  assert(valid===false, 'el campo edad debería ser inválido');
+  await page.locator('#resultados').waitFor({state:'visible'});
+  assert(await page.locator('[data-plan="S2"]').count()===1, 'S2 debería estar disponible para titular menor');
+  assert(await page.locator('[data-plan="AMBU1"]').count()===0, 'AMBU1 debe respetar su edad mínima de tabla');
   await context.close();
 });
 
-await test('Desregulado exige aporte informado', async()=>{
+await test('Obligatorio exige aporte informado', async()=>{
   const {context,page}=await newPage();
-  await page.locator('.choice',{hasText:'Desregulado'}).click();
+  await page.locator('.choice',{hasText:'Obligatorio'}).click();
   assert(await page.locator('#receiptContribution').getAttribute('required')!==null, 'aporte debería ser obligatorio');
   await page.locator('#receiptContribution').fill('');
   await page.locator('#quoteForm button[type="submit"]').click();
-  assert(!(await page.locator('#resultados').isVisible()), 'no debería cotizar sin aporte en Desregulado');
+  assert(!(await page.locator('#resultados').isVisible()), 'no debería cotizar sin aporte en Obligatorio');
   await context.close();
 });
 
