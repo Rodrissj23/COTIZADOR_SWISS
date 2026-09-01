@@ -46,7 +46,7 @@
             <label class="choice"><input type="radio" name="modality" value="Relación de dependencia"><b>Obligatorio</b><small>Con aporte de recibo de sueldo</small></label>
           </div>
           <div class="field-grid field-grid--3 conditional-row" id="receiptContributionWrap" hidden>
-            <label>Aporte del recibo de sueldo<input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 20000"><small class="field-help">Se aplica el tope vigente de base de aportes.</small></label>
+            <label>Aporte del recibo de sueldo<input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 20000"><small class="field-help">El aporte computable se calcula automáticamente a partir del importe informado.</small></label>
           </div>
           <hr>
           <div class="section-heading section-heading--small"><span>03</span><div><h3>Composición familiar</h3><p>Cada integrante se calcula por separado.</p></div></div>
@@ -111,6 +111,7 @@
   </dialog>
   <script src="js/data-demo.js"></script>
   <script src="js/tariff-audit-2026-09.js"></script>
+  <script src="js/tariff-sep26-update.js"></script>
   <script src="js/benefits.js"></script>
   <script src="js/quote-engine.js"></script>
   <script src="assets/vendor/html2canvas.min.js"></script>
