@@ -1,7 +1,7 @@
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 
-const TARIFF_LABEL = 'Septiembre 2026';
+const TARIFF_LABEL = 'Octubre 2026';
 const QUOTE_VALIDITY_HOURS = 72;
 const ENGINE = window.SWISS_ENGINE;
 if (!ENGINE) throw new Error('No se pudo cargar el motor de cotización Swiss Medical.');
