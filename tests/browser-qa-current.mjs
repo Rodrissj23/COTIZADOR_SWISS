@@ -7,15 +7,15 @@ const sourcePath = path.join(here, 'browser-qa.mjs');
 let source = fs.readFileSync(sourcePath, 'utf8');
 
 const replacements = [
-  ["SMG30 Directo AMBA edad 35 muestra $330.963,65", "SMG30 Directo AMBA edad 35 muestra $338.244,75"],
-  ["330.963,65", "338.244,75"],
-  ["Desregulado $20.000 deja SMG30 en $241.125", "Obligatorio $20.000 deja SMG30 en $202.769,20"],
+  ["SMG30 Directo AMBA edad 35 muestra $330.963,65", "SMG30 Directo AMBA edad 35 muestra $345.009,90"],
+  ["330.963,65", "345.009,90"],
+  ["Desregulado $20.000 deja SMG30 en $241.125", "Obligatorio $20.000 deja SMG30 en $207.844,55"],
   ["Hoja económica Desregulado refleja aporte y total exactos", "Hoja económica Obligatorio refleja aporte y total exactos"],
   ["chooseModality(page,'Desregulado')", "chooseModality(page,'Obligatorio')"],
-  ["241.125", "202.769,20"],
+  ["241.125", "207.844,55"],
   ["assert(form.includes('15% por 12 meses'),'falta vigencia Directo');assert(form.includes('25% por 12 meses'),'falta vigencia Monotributo');assert(form.includes('formularios 184 y 152 de ARCA'),'faltan formularios ARCA');", "assert(form.includes('Campañas vigentes por 12 meses'),'falta vigencia de campañas');assert(form.includes('15% de bonificación'),'falta bonificación Directo');assert(form.includes('reciben un 25%'),'falta bonificación Monotributo');assert(form.includes('formularios 184 y 152 de ARCA'),'faltan formularios ARCA');assert(form.includes('se calculan y aplican automáticamente'),'falta aclaración de cálculo automático');"],
-  ["292.026,75", "298.451,25"],
-  ["177.193,55", "181.091,65"]
+  ["292.026,75", "304.420,50"],
+  ["177.193,55", "184.713,50"]
 ];
 
 for (const [from, to] of replacements) {
