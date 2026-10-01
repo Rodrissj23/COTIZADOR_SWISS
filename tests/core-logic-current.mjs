@@ -8,13 +8,13 @@ const near=(a,e,t=.01,l='')=>{if(Math.abs(a-e)>t)throw new Error(`${l} esperado 
 const ok=(v,l='condición')=>{if(!v)throw new Error(`${l} no se cumplió`)};
 
 globalThis.window={};
-for(const file of ['js/data-demo.js','js/tariff-audit-2026-09.js','js/tariff-sep26-update.js','js/benefits.js','js/quote-engine.js']) load(file);
+for(const file of ['js/data-demo.js','js/tariff-audit-2026-09.js','js/tariff-sep26-update.js','js/tariff-oct26-update.js','js/benefits.js','js/quote-engine.js']) load(file);
 const engine=window.SWISS_ENGINE;
 const plan=n=>window.SWISS_PLANS.find(p=>p.name===n);
 const client=o=>({name:'QA',dni:'',zone:'AMBA',modality:'Directo',specialDiscount:'none',familyType:'individual',age:35,partnerAge:35,children:0,childrenAges:[],receiptContribution:0,...o});
 const quote=(p,o={})=>engine.familyQuote(plan(p),client(o));
 
-for(const file of ['js/app.js','js/data-demo.js','js/tariff-audit-2026-09.js','js/tariff-sep26-update.js','js/benefits.js','js/quote-engine.js']) new vm.Script(read(file),{filename:file});
+for(const file of ['js/app.js','js/data-demo.js','js/tariff-audit-2026-09.js','js/tariff-sep26-update.js','js/tariff-oct26-update.js','js/benefits.js','js/quote-engine.js']) new vm.Script(read(file),{filename:file});
 eq(window.SWISS_PLANS.length,15,'15 planes');
 eq(new Set(window.SWISS_PLANS.map(p=>p.name)).size,15,'planes únicos');
 for(const zone of ['AMBA','Buenos Aires Interior / Santa Fe','Córdoba','Patagonia / Salta','Resto del país','Tierra del Fuego']) ok(window.SWISS_ZONE_TARIFFS[zone],zone);
