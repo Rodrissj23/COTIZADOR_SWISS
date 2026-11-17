@@ -1,6 +1,5 @@
 window.SWISS_PLANS = [
-  {name:'AMBU1', family:'Ambulatorios', tag:'Entrada'}, {name:'AMBU2', family:'Ambulatorios', tag:'Ambulatorio'},
-  {name:'INTER1', family:'Esenciales', tag:'Internación'}, {name:'S1', family:'Esenciales', tag:'Integral'}, {name:'S2', family:'Esenciales', tag:'Integral'}, {name:'SMG02', family:'Esenciales', tag:'Clásico'},
+  {name:'S1', family:'Esenciales', tag:'Integral'}, {name:'S2', family:'Esenciales', tag:'Integral'}, {name:'SMG02', family:'Esenciales', tag:'Clásico'},
   {name:'SPORT', family:'Sport', tag:'Activo'}, {name:'SPORT S', family:'Sport', tag:'Activo'}, {name:'SPORT+', family:'Sport', tag:'Activo Plus'},
   {name:'SMG20', family:'SMG', tag:'Integral'}, {name:'SMG30', family:'SMG', tag:'Superior'}, {name:'SMG40', family:'SMG', tag:'Superior'},
   {name:'SMG50', family:'SMG', tag:'Premium'}, {name:'SMG60', family:'SMG', tag:'Premium'}, {name:'SMG70', family:'SMG', tag:'Máxima cobertura'}
@@ -167,22 +166,6 @@ const restrictToS2Plus = tariff => ({
 const DIRECT_PATAGONIA = restrictToS2Plus(DIRECT_AMBA);
 const OBLIG_PATAGONIA = restrictToS2Plus(OBLIG_AMBA);
 
-/* Planes parciales: Ambulatorio / Internación. */
-window.SWISS_AMBULATORY_TARIFF = {
-  bands:[
-    {max:25,key:'20_25'},{max:35,key:'26_35'},{max:40,key:'36_40'},{max:45,key:'41_45'},
-    {max:50,key:'46_50'},{max:55,key:'51_55'},{max:60,key:'56_60'},{max:65,key:'61_65'},
-    {max:70,key:'66_70'},{max:75,key:'71_75'},{max:80,key:'76_80'},{max:999,key:'o80'}
-  ],
-  adult:{
-    AMBU1:{'20_25':86333.8,'26_35':101843.6,'36_40':108007.3,'41_45':116189.9,'46_50':126362.6,'51_55':144440.6,'56_60':168192,'61_65':193207.3,'66_70':245882.7,'71_75':282416.3,'76_80':296533.1,o80:311363.5},
-    AMBU2:{'20_25':49204.8,'26_35':57410.3,'36_40':60675.7,'41_45':65003,'46_50':70380.9,'51_55':79945.2,'56_60':92509.2,'61_65':105740.3,'66_70':133896.4,'71_75':153225.5,'76_80':160883,o80:168930},
-    INTER1:{'20_25':125473.8,'26_35':155070.9,'36_40':181618.4,'41_45':190702.8,'46_50':244620.2,'51_55':318001.8,'56_60':413396.2,'61_65':537414.7,'66_70':698636.2,'71_75':908226.6,'76_80':1180695.9,o80:1534905}
-  },
-  firstChild:{AMBU1:74939.2,AMBU2:43182.3,INTER1:67665.1},
-  additionalChild:{}
-};
-
 window.SWISS_ZONE_TARIFFS = {
   'AMBA': {direct:DIRECT_AMBA, obligatory:OBLIG_AMBA},
   'Nordelta': {direct:DIRECT_AMBA, obligatory:OBLIG_AMBA},
@@ -207,10 +190,10 @@ const normalizeModality = modality =>
   ['Directo','Monotributo'].includes(modality) ? 'direct' : null;
 
 window.getSwissTariff = (planName, modality='Directo', zone='AMBA') => {
-  if (window.SWISS_AMBULATORY_TARIFF.adult[planName]) return window.SWISS_AMBULATORY_TARIFF;
   if (zone === 'Tierra del Fuego' && modality === 'Monotributo') return null;
   const tariffType = normalizeModality(modality);
-  return tariffType ? window.SWISS_ZONE_TARIFFS[zone]?.[tariffType] ?? null : null;
+  const tariff = window.SWISS_ZONE_TARIFFS[zone]?.[tariffType];
+  return tariff && Object.hasOwn(tariff.adult, planName) ? tariff : null;
 };
 
 window.getSwissListPrice = (planName, age, adults=1, children=0, modality='Directo', zone='AMBA') => {

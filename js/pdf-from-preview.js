@@ -11,9 +11,6 @@
     'assets/static/swiss-intro-page2.jpg'
   ];
   const COVERAGE_FILES = {
-    'AMBU1': 'AMBU1 08_2026.pdf',
-    'AMBU2': 'AMBU2 08_2026.pdf',
-    'INTER1': 'INTER1 08_2026.pdf',
     'S1': 'S1 08_2026.pdf',
     'S2': 'S2 08_2026.pdf',
     'SMG02': 'SMG02 08_2026.pdf',

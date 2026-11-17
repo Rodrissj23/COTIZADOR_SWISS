@@ -4,13 +4,13 @@ Portal comercial para cotizar planes Swiss Medical por zona, modalidad, edad y c
 
 ## Vigencia comercial
 
-- Tarifario utilizado: **Septiembre 2026**.
+- Tarifario utilizado: **Noviembre 2026** (vigente desde el 01/11/2026).
 - La propuesta emitida tiene una vigencia de **72 horas**.
 - Beneficios médicos: se resumen a partir de la última documentación disponible compartida por plan. S1 y S2 utilizan como última fuente disponible la versión 07/2026; el resto utiliza 08/2026.
 
 ## Planes
 
-AMBU1, AMBU2, INTER1, S1, S2, SMG02, SPORT S, SPORT, SPORT+, SMG20, SMG30, SMG40, SMG50, SMG60 y SMG70.
+S1, S2, SMG02, SPORT S, SPORT, SPORT+, SMG20, SMG30, SMG40, SMG50, SMG60 y SMG70.
 
 Los planes que no tienen precio informado para la zona, modalidad o edad seleccionada se ocultan.
 
@@ -24,8 +24,6 @@ Los planes que no tienen precio informado para la zona, modalidad o edad selecci
 - Se solicita la edad individual de cada hijo.
 - Hijos de 0 a 21 años: el primero puede usar tarifa `1er Hijo`; los siguientes usan `Hijo Adicional`.
 - Hijos de 22 a 25 años: usan tarifa `Hijo Adicional`.
-- AMBU1, AMBU2 e INTER1 siguen exclusivamente los rangos informados en su tabla parcial.
-- En planes parciales, si se requiere una tarifa de hijo adicional que la tabla no informa, se solicita validación comercial.
 - DNI es opcional.
 
 La condición general de DNI opcional no reemplaza la documentación obligatoria de una campaña: el beneficio territorial exige DNI y servicio a nombre del titular, y Monotributo exige formularios 184 y 152 de ARCA.
@@ -67,12 +65,12 @@ El armado final conserva este orden: las páginas 1 y 2 del PDF original de Swis
 ## Archivos de mantenimiento
 
 - `js/data-demo.js`: base del tarifario por zona y modalidad.
-- `js/tariff-audit-2026-09.js`: correcciones auditadas contra las capturas oficiales de Septiembre 2026.
+- `js/tariff-nov26-update.js`: precios vigentes de las seis listas regionales oficiales. Directo y Monotributo usan la lista Directo con IVA donde se informa. Obligatorio usa Derivación Directa. Tierra del Fuego tiene su propia lista Directo y mantiene la restricción de Monotributo.
 - `js/benefits.js`: resumen comercial de beneficios por plan basado en los PDFs oficiales compartidos.
 - `js/app.js`: reglas de cálculo, formulario, composición familiar, Desregulado y PDF.
 - `assets/static/swiss-intro-original.pdf`: PDF fuente original; solo sus páginas 1 y 2 se copian al archivo final.
 - `assets/static/swiss-intro-page1.jpg` y `swiss-intro-page2.jpg`: imágenes originales extraídas sin recomprimir del PDF fuente, usadas únicamente en el preview.
-- `assets/coverage/*.pdf`: los 15 alcances oficiales binarios completos; el QA fija su SHA-256 y tamaño contra los archivos fuente.
+- `assets/coverage/*.pdf`: los 12 alcances oficiales binarios completos; el QA fija su SHA-256 y tamaño contra los archivos fuente.
 
 Para un cambio mensual de precios, priorizar actualizar el tarifario y dejar intacta la lógica de `app.js` salvo que cambie una regla comercial.
 

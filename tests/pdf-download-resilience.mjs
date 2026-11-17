@@ -3,7 +3,6 @@ import fs from 'node:fs';
 const source = fs.readFileSync(new URL('../js/pdf-from-preview.js', import.meta.url), 'utf8');
 const index = fs.readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const expectedCoverageMap = {
-  AMBU1: 'AMBU1 08_2026.pdf', AMBU2: 'AMBU2 08_2026.pdf', INTER1: 'INTER1 08_2026.pdf',
   S1: 'S1 08_2026.pdf', S2: 'S2 08_2026.pdf', SMG02: 'SMG02 08_2026.pdf',
   SMG20: 'SMG20 08_2026.pdf', SMG30: 'SMG30 08_2026.pdf', SMG40: 'SMG40 08_2026.pdf',
   SMG50: 'SMG50 08_2026.pdf', SMG60: 'SMG60 08_2026.pdf', SMG70: 'SMG70 08_2026.pdf',
@@ -11,7 +10,7 @@ const expectedCoverageMap = {
 };
 
 const checks = [
-  ['los 15 planes están mapeados a su alcance oficial exacto', Object.entries(expectedCoverageMap).every(([plan, file]) => source.includes(`'${plan}': '${file}'`))],
+  ['los 12 planes están mapeados a su alcance oficial exacto', Object.entries(expectedCoverageMap).every(([plan, file]) => source.includes(`'${plan}': '${file}'`))],
   ['no quedan referencias a assets base64 o gzip temporales', !source.includes('.pdf.b64') && !source.includes('.pdf.gz.b64')],
   ['alcance faltante bloquea la descarga en vez de inventar fallback', source.includes('if (!response.ok) throw new Error(`No se pudo cargar el alcance oficial de ${planName}.`);')],
   ['alcance vacío o dañado bloquea la descarga', source.includes('bytes.length < 100000') && source.includes('está vacío o dañado')],
