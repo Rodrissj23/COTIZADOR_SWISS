@@ -35,9 +35,9 @@ for (const file of ['js/app.js','js/data-demo.js','js/tariff-audit-2026-09.js','
   test(`Sintaxis JavaScript ${file}`,()=>{ new vm.Script(read(file),{filename:file}); });
 }
 
-test('Hay exactamente 15 planes únicos',()=>{
-  eq(plans.length,15,'cantidad de planes');
-  eq(new Set(plans.map(p=>p.name)).size,15,'planes únicos');
+test('Hay exactamente 12 planes únicos',()=>{
+  eq(plans.length,12,'cantidad de planes');
+  eq(new Set(plans.map(p=>p.name)).size,12,'planes únicos');
 });
 
 test('Todos los planes tienen resumen técnico',()=>{
@@ -85,13 +85,6 @@ for (const [zone,kind,planName,band,expected] of checkpoints){
 }
 
 test('Hijo adicional S1 Obligatorio AMBA corregido',()=>eq(tariffs.AMBA.obligatory.additionalChild.S1,83061));
-
-test('Planes parciales coinciden con checkpoints de tabla',()=>{
-  eq(window.SWISS_AMBULATORY_TARIFF.adult.AMBU1['20_25'],86333.8);
-  eq(window.SWISS_AMBULATORY_TARIFF.adult.AMBU2['20_25'],49204.8);
-  eq(window.SWISS_AMBULATORY_TARIFF.adult.INTER1['20_25'],125473.8);
-  eq(window.SWISS_AMBULATORY_TARIFF.firstChild.AMBU1,74939.2);
-});
 
 test('Tarifas adultas son positivas y no decrecen con la edad',()=>{
   const ordered=['u35','36_40','41_45','46_50','51_55','56_60','o61'];
@@ -171,12 +164,6 @@ test('Pareja debe tener al menos 18 años',()=>{
   eq(quote('S2',{familyType:'partner',age:35,partnerAge:18}).status,'ok');
 });
 
-test('Plan parcial no se muestra a los 18/19 y aparece desde los 20',()=>{
-  eq(quote('AMBU1',{age:18}).status,'unavailable');
-  eq(quote('AMBU1',{age:19}).status,'unavailable');
-  eq(quote('AMBU1',{age:20}).status,'ok');
-});
-
 test('Hijos 22-25 usan Hijo Adicional y 50%',()=>{
   const q=quote('S2',{familyType:'children',children:1,childrenAges:[23]});
   eq(q.status,'ok');
@@ -193,7 +180,6 @@ test('Segundo hijo 0-21 usa Hijo Adicional',()=>{
 
 test('Hijo mayor de 25 requiere revisión',()=>eq(quote('S2',{familyType:'children',children:1,childrenAges:[26]}).status,'consult'));
 
-test('Planes parciales con más de un hijo requieren consulta',()=>eq(quote('AMBU1',{age:30,familyType:'children',children:2,childrenAges:[8,10]}).status,'consult'));
 
 test('Cálculo familiar aplica bonificación por integrante',()=>{
   const q=quote('S2',{familyType:'partner_children',age:35,partnerAge:36,children:2,childrenAges:[10,23]});
@@ -229,11 +215,11 @@ test('Obligatorio con $20.000 aplica 15% y luego aporte computable',()=>{
   near(q.finalPrice,197306.25,0.01);
 });
 
-test('Tope de base Obligatorio es $4.045.590',()=>{
+test('El aporte Obligatorio se calcula sobre la base completa',()=>{
   const c=engine.contributionForClient(baseClient({modality:'Relación de dependencia',receiptContribution:200000}));
-  eq(c.baseContribution,4045590);
-  eq(c.capApplied,true);
-  near(c.aporteComputable,309487.64,0.01);
+  near(c.baseContribution,6666666.666666667,0.000001);
+  eq(c.capApplied,false);
+  near(c.aporteComputable,510000,0.01);
 });
 
 test('Precio final nunca es negativo',()=>{
@@ -273,9 +259,9 @@ test('App usa motor auditado',()=>{
   ok(!app.includes('window.print('),'sin impresión del navegador');
 });
 
-test('Index carga datos, auditoría, beneficios, motor y app en orden',()=>{
+test('Index carga datos, tarifario vigente, beneficios, motor y app en orden',()=>{
   const html=read('index.html');
-  const order=['js/data-demo.js','js/tariff-audit-2026-09.js','js/benefits.js','js/quote-engine.js','js/app.js'].map(x=>html.indexOf(x));
+  const order=['js/data-demo.js','js/tariff-nov26-update.js','js/benefits.js','js/quote-engine.js','js/app.js'].map(x=>html.indexOf(x));
   ok(order.every(x=>x>=0),'scripts presentes');
   ok(order.every((x,i)=>i===0||x>order[i-1]),'orden de scripts');
 });

@@ -13,7 +13,6 @@ globalThis.window = {};
 load('js/data-demo.js');
 load('js/tariff-audit-2026-09.js');
 
-const partialSnapshot = JSON.stringify(window.SWISS_AMBULATORY_TARIFF);
 const before = JSON.parse(JSON.stringify(window.SWISS_ZONE_TARIFFS));
 load('js/tariff-sep26-update.js');
 load('js/quote-engine.js');
@@ -47,7 +46,6 @@ eq(meta.rate,1.022,'aumento Sep26');
 eq(checked,1116,'valores verificados');
 eq(meta.updatedValues,1116,'valores actualizados');
 eq(meta.expectedUpdatedValues,1116,'conteo esperado');
-eq(JSON.stringify(window.SWISS_AMBULATORY_TARIFF),partialSnapshot,'AMBU1/AMBU2/INTER1 sin cambios');
 
 // Checkpoints tomados directamente de los bloques Directos / Derivación Directa del Excel Sep26.
 const checkpoints = [

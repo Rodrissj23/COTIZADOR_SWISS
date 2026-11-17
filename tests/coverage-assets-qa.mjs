@@ -6,9 +6,6 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dir = path.resolve(here, '../assets/coverage');
 const expected = {
-  'AMBU1 08_2026.pdf': [137893, 'e9c7f0c0addc46a98854a871d96ca3eb8756c6e11bcf11c7f8e71b8afc4bff21'],
-  'AMBU2 08_2026.pdf': [136374, '03fca60271d8f92449c8b47b1cdfa5ae3072395b500d873193393c8f42b7c4d6'],
-  'INTER1 08_2026.pdf': [139561, '6004aa368b2abf55b70c80cb1cb735d646e432e7a49040563e3407eafc6d7bf1'],
   'S1 08_2026.pdf': [280480, '7306e353b9030e59f279beccfdbd628675cd1bb43149bb30a65063387de623ed'],
   'S2 08_2026.pdf': [280466, '55e6da6e7b82731e7c3ed696d7756d7af9d7559feb07718c82b77fca0ccd440a'],
   'SMG02 08_2026.pdf': [277692, '662b37599ac5814d7cce3412607520af21d816490a0f06f6bef3f55c1e9156e3'],

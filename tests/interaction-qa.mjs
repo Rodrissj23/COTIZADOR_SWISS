@@ -35,7 +35,7 @@ await test('Titular menor puede cotizar solo y recibe planes compatibles', async
   await page.locator('#quoteForm button[type="submit"]').click();
   await page.locator('#resultados').waitFor({state:'visible'});
   assert(await page.locator('[data-plan="S2"]').count()===1, 'S2 debería estar disponible para titular menor');
-  assert(await page.locator('[data-plan="AMBU1"]').count()===0, 'AMBU1 debe respetar su edad mínima de tabla');
+  assert(await page.locator('[data-plan="AMBU1"]').count()===0, 'AMBU1 fue retirado del catálogo');
   await context.close();
 });
 

@@ -1,12 +1,10 @@
 (() => {
   const DESREGULADO = 'Relación de dependencia';
   const CONTRIBUTION_BASE_CAP = null;
-  const PARTIAL_PLANS = new Set(['AMBU1','AMBU2','INTER1']);
 
   const roundMoney = value => Math.round((Number(value) + 1e-9) * 100) / 100;
   const hasPartner = familyType => ['partner','partner_children'].includes(familyType);
   const hasChildren = familyType => ['children','partner_children'].includes(familyType);
-  const isPartialPlan = name => PARTIAL_PLANS.has(name);
   const displayModality = modality => modality === DESREGULADO ? 'Obligatorio' : modality;
 
   function getTariffFor(planName, modality, zone){
@@ -28,7 +26,6 @@
   function adultListPrice(tariff, planName, age){
     const numericAge = Number(age);
     if (!Number.isFinite(numericAge) || numericAge < 0) return null;
-    if (tariff === window.SWISS_AMBULATORY_TARIFF && numericAge < 20) return null;
     const key = tariff?.bands?.find(b => numericAge <= b.max)?.key ?? tariff?.bands?.at(-1)?.key;
     return key ? tariff?.adult?.[planName]?.[key] ?? null : null;
   }
@@ -76,9 +73,6 @@
         return {status:'consult',reason:'Revisá la edad de cada hijo. Se admiten edades de 0 a 25 años.'};
       }
       if (!tariff.firstChild || tariff.firstChild[plan.name] == null) return {status:'unavailable'};
-      if (isPartialPlan(plan.name) && count > 1) {
-        return {status:'consult',reason:'Para este plan, más de un hijo requiere confirmación comercial.'};
-      }
 
       let firstChildTariffUsed = false;
       for (let index=0; index<ages.length; index++){
@@ -116,7 +110,6 @@
     roundMoney,
     hasPartner,
     hasChildren,
-    isPartialPlan,
     displayModality,
     getTariffFor,
     discountForMember,

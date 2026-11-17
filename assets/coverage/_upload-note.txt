@@ -1,9 +1,6 @@
 Estado de alcances oficiales · Septiembre 2026
 
-Cargados y validados (15/15):
-- AMBU1
-- AMBU2
-- INTER1
+Cargados y validados (12/12):
 - S1
 - S2
 - SMG02
@@ -17,7 +14,7 @@ Cargados y validados (15/15):
 - SPORT S
 - SPORT+
 
-Los 15 planes tienen su PDF binario original asociado. El QA fija el tamaño y SHA-256 de cada archivo contra el material fuente entregado, por lo que cualquier sustitución, truncado o recompresión bloquea la validación.
+Los 12 planes tienen su PDF binario original asociado. El QA fija el tamaño y SHA-256 de cada archivo contra el material fuente entregado, por lo que cualquier sustitución, truncado o recompresión bloquea la validación.
 El PDF final copia todas las páginas del alcance oficial exacto después de la cotización y del detalle familiar cuando corresponde. No existe resumen técnico sintético ni fallback reconstruido.
 
 Nota de fuente: S1 y S2 corresponden a la última versión oficial disponible 07/2026; los restantes alcances corresponden a 08/2026. No renombrar documentos de otra vigencia como si fueran 08/2026.

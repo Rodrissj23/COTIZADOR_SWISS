@@ -1,26 +1,4 @@
 window.SWISS_PLAN_BENEFITS = {
-  AMBU1:{system:'Cerrado',line:'Parcial Ambulatorio',source:'08/2026',highlights:[
-    'Consultas médicas de cartilla en consultorio sin cargo, sin tope y sin límite dentro del alcance del plan.',
-    'Laboratorio, radiología, tomografía, resonancia, cámara gamma, PET y otros estudios incluidos dentro del alcance ambulatorio.',
-    'Kinesiología y fisioterapia: hasta 30 sesiones por año. RPG: hasta 10 sesiones. Fonoaudiología: hasta 30 sesiones.',
-    'Alergia: consultas sin cargo, sin tope y sin límite; testificación total 1 por año.',
-    'Medicamentos: 40% de descuento en farmacias de cartilla.'
-  ]},
-  AMBU2:{system:'Cerrado',line:'Parcial Ambulatorio',source:'08/2026',highlights:[
-    'Consultas médicas de cartilla en consultorio con cargo.',
-    'Laboratorio, radiología y estudios de baja y alta complejidad con cargos definidos por prestación.',
-    'Incluye TAC, resonancia nuclear magnética, cámara gamma y PET dentro del alcance ambulatorio.',
-    'Medicamentos: 40% de descuento en farmacias de cartilla.',
-    'No incluye consultas de guardia ni emergencias/urgencias dentro del alcance ambulatorio informado.'
-  ]},
-  INTER1:{system:'Cerrado',line:'Parcial Internación',source:'08/2026',highlights:[
-    'Hasta 6 consultas con cirujano por año, entre controles previos y posteriores a una internación quirúrgica.',
-    'Internación clínica y quirúrgica con derechos y gastos sanatoriales, honorarios y estudios complementarios.',
-    'Habitación compartida.',
-    'Terapia intensiva y unidad coronaria incluidas dentro del alcance de internación.',
-    'Medicamentos y material descartable relacionados con la internación: 100%.',
-    'Prótesis e implantes internos nacionales según condiciones del plan.'
-  ]},
   S1:{system:'Cerrado',line:'Nubial Quality',source:'07/2026',highlights:[
     'Consultas ambulatorias: hasta 50 por año; luego aplica el arancel informado por Swiss Medical.',
     'Kinesiología, fisioterapia y fonoaudiología: hasta 30 sesiones por año.',
